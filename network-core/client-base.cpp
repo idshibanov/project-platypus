@@ -30,6 +30,9 @@ int main() {
    FD_SET(sockfd, &readfds);
    FD_SET(0, &readfds);  /* Add keyboard to file descriptor set */
    /* Now wait for messages from the server or keyboard */
+
+   ClientSocketHandler serv(sockfd);
+
    while (1) {
       testfds = readfds;
       select(FD_SETSIZE, &testfds, NULL, NULL, NULL);
@@ -41,17 +44,27 @@ int main() {
                if (strcmp(message, "quit\n") == 0) {
                   close(sockfd);
                   exit(EXIT_SUCCESS);
+               } else if (strcmp(message, "send junk.data\n") == 0) {
+                  // not working properly yet
+
+                  // char fcont[30][MAX_PACKET_SIZE+1];
+                  // int row = 0;
+
+                  // FILE *fp;
+                  // fp=fopen("junk.data","r");
+                  // while(fgets(fcont[row++], MAX_PACKET_SIZE + 1, fp));
+                  // fclose(fp);
+                  // serv.SendFile((const char*) &fcont);
+
+                  // printf("sending file\n");
                } else {
-                  //write(sockfd, message, strlen(message));
-                  printf("writes\n");
-                  
-                  ClientSocketHandler serv(sockfd);
+
                   if (serv.SendChatMsg(message))
                   {
-                     printf("successfully\n");
+                     // printf("successfully\n");
                   } else
                   {
-                     printf("false from SendChatMsg\n");
+                     // printf("got false from SendChatMsg\n");
                   }
                }
             } else {

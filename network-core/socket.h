@@ -23,7 +23,7 @@ class ClientSocketHandler
    // socket fd number
    int _sockfd;
    
-   // pointer to a first packet in queue
+   // pointer to a first packet in an queue
    NetPacket* _pfirst;
    
    // status of a client for protection reasons
@@ -65,6 +65,12 @@ class ClientSocketHandler
    
    // get client msg from a recieved packet
    bool RecvChatMsg(NetPacket* p);
+   
+   // send file to a client, demo-function
+   bool SendFile(const char* msg);
+   
+   // recover and print file from a packet, demo-function
+   bool RecvFile(NetPacket* p);
    
    // full access, can construct
    friend class ClientSocketArray;

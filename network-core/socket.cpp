@@ -9,6 +9,8 @@
 #include "socket.h"
 
 #include <stdio.h>
+#include <string.h>
+#include <unistd.h>
 
 
 // Implementation of ClientSocketHandler class
@@ -16,10 +18,10 @@
 ClientSocketHandler::ClientSocketHandler(int socket)
 {
    // constructor is private, so we assume that socket data is ok
-   
+
    _sockfd = socket;
    _pfirst = (NetPacket *)0;
-   
+
    // temp assignment, must be replaced with a proper auth. system
    _status = STATUS_ACTIVE;
 }
@@ -55,7 +57,7 @@ bool ClientSocketHandler::SendPacket(NetPacket* p)
 {
    bool retval = false;
    uint snd;
-   
+
    if (p != (NetPacket *)0)
    {
       p->PrepareToSend();
@@ -64,10 +66,10 @@ bool ClientSocketHandler::SendPacket(NetPacket* p)
       if ( snd == p->_size)
       {
          retval = true;
-         printf("SendPacket passed, size: %d\n", p->_size);
+         // printf("SendPacket passed, size: %d\n", p->_size);
       }
    }
-   
+
    return retval;
 }
 
@@ -82,48 +84,57 @@ bool ClientSocketHandler::RecvPacket()
    bool retval = false;
    uint psize = sizeof(PacketSize);
    NetPacket* p = new NetPacket(this);
-   
+
    if (recv(_sockfd, (void*) &p->_buffer[0], psize, 0) == psize )
    {
       p->ReadSize();
-      printf("size read\n");
       if (recv(_sockfd, (void*) &p->_buffer[psize], p->_size - psize, 0) == p->_size - psize)
       {
-         printf("RecvPacket passed packet to HandlePacket\n");
+         // printf("RecvPacket passed packet to HandlePacket\n");
          p->_pos = psize;
          retval = this->HandlePacket(p);
       }
    }
-   
+
    // important
    delete p;
-   
+
    return retval;
 }
 
 bool ClientSocketHandler::HandlePacket(NetPacket* p)
 {
-   // replace & implement later
-   
-   // reads type char
-   p->_pos++;
-   return this->RecvChatMsg(p);
+   // DEBUG: it is not a null pointer
+   assert(p != (NetPacket *)0);
+
+   bool retval = false;
+
+   switch(p->_buffer[p->_pos++])
+   {
+      case PACKET_CLIENT_CHAT:
+         retval = this->RecvChatMsg(p);
+         break;
+      case PACKET_CLIENT_FILE:
+         retval = this->RecvFile(p);
+         break;
+   }
+
+   return retval;
 }
 
 bool ClientSocketHandler::SendChatMsg(const char* msg)
 {
    NetPacket* p = new NetPacket(PACKET_CLIENT_CHAT);
    bool retval = false;
-   
+
    if ( p->send_string(msg) )
    {
-      printf("send_string passed\n");
       retval = this->SendPacket(p);
    }
-   
+
    // important
    delete p;
-      
+
    return retval;
 }
 
@@ -134,22 +145,67 @@ bool ClientSocketHandler::RecvChatMsg(NetPacket* p)
 
    bool retval = false;
    char msg[p->_size+1];
-   
+
    // check if client is actually authorized to send this packet
    if (_status != STATUS_ACTIVE) { }
    else
    {
       if (p->recv_string(msg, p->_size - p->_sizeof_sizetype))
       {
-         printf("recv_string passed\n");
+         // printf("recv_string passed\n");
       } else
       {
-         printf("recv_string returned false\n");
+         // printf("recv_string returned false\n");
       }
-      printf("RecvChatMsg passed\n");
-      
+
       // got processed msg here
-      printf(" - says: %s", msg);
+      printf("Client says: %s", msg);
+      retval = true;
+   }
+   return retval;
+}
+
+bool ClientSocketHandler::SendFile(const char* msg)
+{
+   // not working properly yet
+
+   NetPacket* p = new NetPacket(PACKET_CLIENT_FILE);
+   bool retval = false;
+   int line;
+
+   for (line = 0; p->send_string(&msg[line]); line++);
+   // loaded something
+   if (line) retval = this->SendPacket(p);
+
+   // important
+   delete p;
+
+   return retval;
+}
+
+bool ClientSocketHandler::RecvFile(NetPacket* p)
+{
+   // not working properly yet
+
+   // DEBUG: it is not a null pointer
+   assert(p != (NetPacket *)0);
+
+   bool retval = false;
+   char msg[p->_size+1];
+
+   // check if client is actually authorized to send this packet
+   if (_status != STATUS_ACTIVE) { }
+   else
+   {
+      printf("got packet, size: %d\n", p->_size);
+      write(STDOUT_FILENO, &p->_buffer[p->_pos], p->_size);
+
+   /* while (p->recv_string(msg, strlen((const char *) p->_buffer[p->_pos])))
+      {
+         p->_pos += strlen((const char *) p->_buffer[p->_pos]);
+         printf("%s", msg);
+      } */
+
       retval = true;
    }
    return retval;
@@ -175,9 +231,9 @@ bool ClientSocketArray::AddClient(int socket)
 {
    // DEBUG: passed wrong socket #
    assert(socket >= MIN_CLIENT_SOCKFD);
-   
+
    bool retval = false;
-   
+
    if (socket < MIN_CLIENT_SOCKFD) { }
    else if ( _lenght < MAX_CLIENTS )
    {
@@ -185,7 +241,7 @@ bool ClientSocketArray::AddClient(int socket)
       _lenght++;
       retval = true;
    }
-   
+
    return retval;
 }
 
@@ -193,10 +249,10 @@ bool ClientSocketArray::RemoveClient(int socket)
 {
    // DEBUG: passed wrong socket #
    assert(socket >= MIN_CLIENT_SOCKFD);
-   
+
    bool retval = false;
    int i;
-   
+
    for(i = 0; i < _lenght && _client_sock[i]; i++)
    {
       if (_client_sock[i]->_sockfd == socket)
@@ -204,13 +260,13 @@ bool ClientSocketArray::RemoveClient(int socket)
          delete _client_sock[i];
          for(i += 1; i < _lenght && _client_sock[i]; i++)
             _client_sock[i-1] = _client_sock[i];
-            
+
          _lenght--;
          retval = true;
          break;
       }
    }
-   
+
    return retval;
 }
 
@@ -218,7 +274,7 @@ ClientSocketHandler* ClientSocketArray::operator [] (const int sockfd)
 {
    ClientSocketHandler* retval = (ClientSocketHandler *)0;
    int i;
-   
+
    for(i = 0; i < _lenght && _client_sock[i]; i++)
    {
       if (_client_sock[i]->_sockfd == sockfd)
@@ -226,6 +282,6 @@ ClientSocketHandler* ClientSocketArray::operator [] (const int sockfd)
    }
    return retval;
 }
-    
-    
+
+
 
