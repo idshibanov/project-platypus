@@ -270,6 +270,16 @@ bool ClientSocketArray::RemoveClient(int socket)
    return retval;
 }
 
+int ClientSocketArray::Lenght()
+{
+   return _lenght;
+}
+
+ClientSocketArray::operator int()
+{
+   return _lenght;
+}
+
 ClientSocketHandler* ClientSocketArray::operator [] (const int sockfd)
 {
    ClientSocketHandler* retval = (ClientSocketHandler *)0;
