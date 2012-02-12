@@ -1,8 +1,12 @@
 // Project Platypus
 // socket.cpp - implements ClientSocketArray and ClientSocketHandler classes
 
+// WILL DIVIDE SOON SOCKET.H AND SOCKET.CPP
+// INTO CLIENT AND SERVER PART, SEPARATED
+
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #include "defines.h"
 #include "datatypes.h"
@@ -10,17 +14,17 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 
 
 // Implementation of ClientSocketHandler class
 
-ClientSocketHandler::ClientSocketHandler(int socket)
+ClientSocketHandler::ClientSocketHandler(int socket, GameInstance* game)
 {
    // constructor is private, so we assume that socket data is ok
 
    _sockfd = socket;
    _pfirst = (NetPacket *)0;
+   _game = game;
 
    // temp assignment, must be replaced with a proper auth. system
    _status = STATUS_ACTIVE;
@@ -127,7 +131,7 @@ bool ClientSocketHandler::SendChatMsg(const char* msg)
    NetPacket* p = new NetPacket(PACKET_CLIENT_CHAT);
    bool retval = false;
 
-   if ( p->send_string(msg) )
+   if ( p->SendString(msg) )
    {
       retval = this->SendPacket(p);
    }
@@ -150,12 +154,12 @@ bool ClientSocketHandler::RecvChatMsg(NetPacket* p)
    if (_status != STATUS_ACTIVE) { }
    else
    {
-      if (p->recv_string(msg, p->_size - p->_sizeof_sizetype))
+      if (p->RecvString(msg, p->_size - p->_sizeof_sizetype))
       {
-         // printf("recv_string passed\n");
+         // printf("RecvString passed\n");
       } else
       {
-         // printf("recv_string returned false\n");
+         // printf("RecvString returned false\n");
       }
 
       // got processed msg here
@@ -173,7 +177,7 @@ bool ClientSocketHandler::SendFile(const char* msg)
    bool retval = false;
    int line;
 
-   for (line = 0; p->send_string(&msg[line]); line++);
+   for (line = 0; p->SendString(&msg[line]); line++);
    // loaded something
    if (line) retval = this->SendPacket(p);
 
@@ -200,7 +204,7 @@ bool ClientSocketHandler::RecvFile(NetPacket* p)
       printf("got packet, size: %d\n", p->_size);
       write(STDOUT_FILENO, &p->_buffer[p->_pos], p->_size);
 
-   /* while (p->recv_string(msg, strlen((const char *) p->_buffer[p->_pos])))
+   /* while (p->RecvString(msg, strlen((const char *) p->_buffer[p->_pos])))
       {
          p->_pos += strlen((const char *) p->_buffer[p->_pos]);
          printf("%s", msg);
@@ -215,9 +219,10 @@ bool ClientSocketHandler::RecvFile(NetPacket* p)
 
 // Implementation of ClientSocketArray class
 
-ClientSocketArray::ClientSocketArray()
+ClientSocketArray::ClientSocketArray(GameInstance* game)
 {
    _lenght = 0;
+   _game = game;
 }
 
 ClientSocketArray::~ClientSocketArray()
@@ -237,7 +242,7 @@ bool ClientSocketArray::AddClient(int socket)
    if (socket < MIN_CLIENT_SOCKFD) { }
    else if ( _lenght < MAX_CLIENTS )
    {
-      _client_sock[_lenght] = new ClientSocketHandler(socket);
+      _client_sock[_lenght] = new ClientSocketHandler(socket, _game);
       _lenght++;
       retval = true;
    }

@@ -4,8 +4,8 @@
 #include "defines.h"
 #include "bitmath.h"
 #include "packet.h"
-#include <string.h>
 
+#include <string.h>
 #include <stdio.h>
 
 NetPacket::NetPacket(ClientSocketHandler* sock)
@@ -69,7 +69,7 @@ void NetPacket::ReadSize()
 	_size += (PacketSize)_buffer[1] << 8;
 }
 
-bool NetPacket::send_string(const char* data)
+bool NetPacket::SendString(const char* data)
 {
    // DEBUG: check if there is data
    assert(data != (const char*)0);
@@ -87,7 +87,7 @@ bool NetPacket::send_string(const char* data)
    return retval;
 }
 
-bool NetPacket::recv_string(char* buf, PacketSize size)
+bool NetPacket::RecvString(char* buf, PacketSize size)
 {
    // DEBUG: passed string is not null
    assert(buf != (char *)0);

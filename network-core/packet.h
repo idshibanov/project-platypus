@@ -5,7 +5,6 @@
 #define PLA_NET_PACKET_H
 
 #include "datatypes.h"
-#include "socket.h"
 
 class ClientSocketHandler;
 
@@ -55,8 +54,10 @@ class NetPacket
    // run before sending packet
    void PrepareToSend();
    void ReadSize();
-   bool send_string(const char* data);
-   bool recv_string(char* buf, uint16 size);
+   bool SendString(const char* data);
+   bool RecvString(char* buf, uint16 size);
+   bool SendBool(bool data);
+   bool RecvBool(bool* dest);
 
    friend class ClientSocketHandler;
 };

@@ -12,16 +12,17 @@
 #include "defines.h"
 #include "datatypes.h"
 #include "socket.h"
+#include "game.h"
 
 int main()
 {
+   // INIT: variables
+
    fd_set readfds, testfds;
    sockaddr_in serv_addr, client_addr;
    int serv_addr_len, client_addr_len;
    int serv_fd, client_fd;
    int fd_max, fd_cur, nread, bytes_got;
-
-   ClientSocketArray client_sock; // holds client connections
 
    int fd_cur2; // temp variable
    int fd_min_client; // replace later
@@ -29,12 +30,19 @@ int main()
 
    char kb_msg[MAX_KB_INPUT+1];
    char serv_msg[MAX_PACKET_SIZE+1]; // must be replaced with packets
-   char client_msg[MAX_PACKET_SIZE+1]; // must be replaced with packets
 
    serv_addr.sin_family = AF_INET;
    serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
    serv_addr.sin_port = htons(SERV_PORT);
    serv_addr_len = sizeof(serv_addr);
+   
+   // INIT: core variables: game and network
+
+   // initialization, map generation, etc goes here
+   GameInstance game = GameInstance();    // holds game data
+   ClientSocketArray client_sock(&game);  // holds our clients
+   
+   // INIT: server gets online
 
    if((serv_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
    {
@@ -57,7 +65,7 @@ int main()
       exit(1);
    }
 
-   // fd sets init
+   // INIT: fd sets
 
    FD_ZERO(&readfds);
    FD_ZERO(&testfds);
@@ -69,6 +77,7 @@ int main()
    while(1)
    {
       testfds = readfds;
+      
       // remember to add 1 to fd_max
       // select ( highest_fd_number+1, &read_fd_set, &write_fd_set, &except_fd_set, &timeval)
       select( fd_max, &testfds, (fd_set *)0, (fd_set *)0, (struct timeval *) 0);
@@ -89,8 +98,8 @@ int main()
 	               continue;
 	            } else if (client_sock.AddClient(client_fd) == false)
 	            {
-	               // EVENT: failed to add a client to ClientSocketArray
-	               printf("there is no more space left\n");
+	               // EVENT: failed to add a client, server is full
+	               printf("server is full\n");
 
 	               // TODO: send appr. packet to a client
 
@@ -108,11 +117,6 @@ int main()
             } else if (fd_cur == STDIN_FILENO)
             {
                // EVENT: server got keyboard input
-
-               //bytes_got = read(STDIN_FILENO, &kb_msg, MAX_KB_INPUT);
-               //kb_msg[bytes_got] = '\0';
-               // flush the rest
-               // fflush(stdin);
 
                // TODO: replace/improve fgets
 
@@ -140,12 +144,12 @@ int main()
                {
                   // EVENT: its not a command
                   // TODO: remove, replace chat function with server_command.cpp
+                  // TODO: teach client to catch packets
                   sprintf(serv_msg, "MModerator: %s", kb_msg);
                   for (fd_cur2 = fd_min_client; fd_cur2 < fd_max; fd_cur2++)
                      if (FD_ISSET(fd_cur2, &readfds))
                         write(fd_cur2, serv_msg, strlen(serv_msg));
                }
-
             } else
             {
                // EVENT: something on client socket

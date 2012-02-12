@@ -1,11 +1,15 @@
 // Project Platypus
 // socket.h - holds ClientSocketArray and ClientSocketHandler class definitions
 
+// WILL DIVIDE SOON SOCKET.H AND SOCKET.CPP
+// INTO CLIENT AND SERVER PART, SEPARATED
+
 #ifndef PLA_NET_SOCKET_H
 #define PLA_NET_SOCKET_H
 
 #include "defines.h"
 #include "packet.h"
+#include "game.h"
 
 class NetPacket;
 
@@ -28,12 +32,15 @@ class ClientSocketHandler
 
    // status of a client for protection reasons
    ClientStatus _status;
+   
+   // client is associated with that game instance
+   GameInstance* _game;   
 
    // private constructor, so only ClientSocketArray
    // can create an instance of ClientSocketHandler
 
    public:
-   ClientSocketHandler(int socket);
+   ClientSocketHandler(int socket, GameInstance* game);
    virtual ~ClientSocketHandler();
 
    // returns socket number
@@ -66,6 +73,11 @@ class ClientSocketHandler
    // get client msg from a recieved packet
    bool RecvChatMsg(NetPacket* p);
 
+   //
+   bool SendServerAck(NetPacketType ack);
+
+   bool SendClientAck(NetPacketType ack);
+
    // send file to a client, demo-function
    bool SendFile(const char* msg);
 
@@ -84,10 +96,13 @@ class ClientSocketArray
 
    // lenght of an array
    uint _lenght;
+   
+   // array is associated with that game instance
+   GameInstance* _game;
 
    public:
    // default constructor of an empty array
-   ClientSocketArray();
+   ClientSocketArray(GameInstance* game);
 
    // deletes ClientSocketHandlers
    ~ClientSocketArray();
