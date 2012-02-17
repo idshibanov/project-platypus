@@ -1,16 +1,20 @@
-all: server-base
+all: server
 cc=c++
-server-base: server-base.o packet.o socket.o
-	$(cc) server-base.o packet.o socket.o -o server-base
-server-base.o: server-base.cpp datatypes.h defines.h game.h
-	$(cc) -c server-base.cpp
+server: server_main.o packet.o socket.o server_socket.o
+	$(cc) server_main.o packet.o socket.o server_socket.o -o server
+server_main.o: server_main.cpp datatypes.h defines.h
+	$(cc) -c server_main.cpp
+server_socket.o: server_socket.cpp server_socket.h
+	$(cc) -c server_socket.cpp
 packet.o: packet.cpp packet.h
 	$(cc) -c packet.cpp
 socket.o: socket.cpp socket.h
 	$(cc) -c socket.cpp
-client: client-base.o packet.o socket.o
-	$(cc) client-base.o packet.o socket.o -o client-base
-client-base.o: client-base.cpp defines.h game.h
-	$(cc) -c client-base.cpp
+client: client_main.o packet.o socket.o client_socket.o
+	$(cc) client_main.o packet.o socket.o client_socket.o -o client
+client_main.o: client_main.cpp datatypes.h defines.h
+	$(cc) -c client_main.cpp
+client_socket.o: client_socket.cpp client_socket.h
+	$(cc) -c client_socket.cpp
 clean:
-	rm server-base.o client-base.o packet.o socket.o
+	rm server_main.o client_main.o packet.o socket.o server_socket.o client_socket.o

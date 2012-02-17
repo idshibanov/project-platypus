@@ -1,8 +1,5 @@
 // Project Platypus
-// socket.h - holds ClientSocketArray and ClientSocketHandler class definitions
-
-// WILL DIVIDE SOON SOCKET.H AND SOCKET.CPP
-// INTO CLIENT AND SERVER PART, SEPARATED
+// socket.h - holds SocketHandler base class definition, used by both server and client
 
 #ifndef PLA_NET_SOCKET_H
 #define PLA_NET_SOCKET_H
@@ -13,35 +10,22 @@
 
 class NetPacket;
 
-enum ClientStatus
+class SocketHandler
 {
-   STATUS_INACTIVE,        // client is not connected nor active
-   STATUS_AUTH,            // client is authorizing with server
-   STATUS_AUTHORIZED,      // client is authorized
-   STATUS_ACTIVE,          // client is active within in the game
-   STATUS_END              // always at the end
-};
-
-class ClientSocketHandler
-{
+   protected:
+   
    // socket fd number
    int _sockfd;
 
    // pointer to a first packet in an queue
    NetPacket* _pfirst;
-
-   // status of a client for protection reasons
-   ClientStatus _status;
    
-   // client is associated with that game instance
-   GameInstance* _game;   
-
-   // private constructor, so only ClientSocketArray
-   // can create an instance of ClientSocketHandler
+   // we cant initialize SocketHandler
+   SocketHandler(int socket);
 
    public:
-   ClientSocketHandler(int socket, GameInstance* game);
-   virtual ~ClientSocketHandler();
+   
+   virtual ~SocketHandler();
 
    // returns socket number
    int GetSockNo();
@@ -54,7 +38,7 @@ class ClientSocketHandler
    bool AddPacket(NetPacket* p);
 
    // send single packet to a client
-   // ? must remove later ?
+   // must remove later ?
    bool SendPacket(NetPacket* p);
 
    // send packets in a queue
@@ -63,68 +47,28 @@ class ClientSocketHandler
    // recieve packet from a client
    bool RecvPacket();
 
-   // calls specific function
-   bool HandlePacket(NetPacket *p);
+   // pure virtual function, calls specific function
+   virtual bool HandlePacket(NetPacket *p) = 0;
 
    // SPECIFIC SEND\RECIEVE FUNCTIONS
    // send msg to a client, forms a packet & adds to a queue (?)
-   bool SendChatMsg(const char* msg);
+   virtual bool SendChatMsg(const char* msg) = 0;
 
    // get client msg from a recieved packet
-   bool RecvChatMsg(NetPacket* p);
+   virtual bool RecvChatMsg(NetPacket* p) = 0;
 
-   //
-   bool SendServerAck(NetPacketType ack);
+   // send simple ack, optional bool argument
+   bool SendAck(NetPacketType ack, bool val = false);
 
-   bool SendClientAck(NetPacketType ack);
+   // pure virtual function, get ack
+   virtual bool RecvAck(NetPacket* p) = 0;
 
    // send file to a client, demo-function
    bool SendFile(const char* msg);
 
    // recover and print file from a packet, demo-function
    bool RecvFile(NetPacket* p);
-
-   // full access, can construct
-   friend class ClientSocketArray;
-};
-
-
-class ClientSocketArray
-{
-   // array of ptrs to DYNAMICALLY allocated ClientSocketHandlers
-   ClientSocketHandler* _client_sock[MAX_CLIENTS];
-
-   // lenght of an array
-   uint _lenght;
    
-   // array is associated with that game instance
-   GameInstance* _game;
-
-   public:
-   // default constructor of an empty array
-   ClientSocketArray(GameInstance* game);
-
-   // deletes ClientSocketHandlers
-   ~ClientSocketArray();
-
-   // add a client to an array
-   bool AddClient(int socket);
-
-   // remove a client from an array, automatically moves others
-   bool RemoveClient(int socket);
-
-   // returns current number of clients in the array
-   int Lenght();
-
-   // we can cast a class to an int
-   // returns current number of clients in the array
-   operator int();
-
-   // operator [] to work with this class as an simple array
-   ClientSocketHandler* operator [] (const int sockfd);
 };
-
 
 #endif /* PLA_NET_SOCKET_H */
-
-

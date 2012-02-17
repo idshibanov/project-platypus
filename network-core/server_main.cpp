@@ -11,7 +11,7 @@
 
 #include "defines.h"
 #include "datatypes.h"
-#include "socket.h"
+#include "server_socket.h"
 #include "game.h"
 
 int main()
@@ -40,7 +40,7 @@ int main()
 
    // initialization, map generation, etc goes here
    GameInstance game = GameInstance();    // holds game data
-   ClientSocketArray client_sock(&game);  // holds our clients
+   ServerSocketArray client_sock(&game);  // holds our clients
    
    // INIT: server gets online
 
@@ -101,15 +101,14 @@ int main()
 	               // EVENT: failed to add a client, server is full
 	               printf("server is full\n");
 
-	               // TODO: send appr. packet to a client
-
 	               close(client_fd);
 	               continue;
 	            } else
 	            {
 	               // EVENT: connection is accepted and client is added to client_sock list
 	               // new client init
-
+	               
+                  client_sock[client_fd]->SendAck(PACKET_SERVER_WELCOME);
 	               FD_SET(client_fd, &readfds);
 	               printf("adding client on fd %d\n", client_fd);
 	               if ( client_fd + 1 > fd_max ) fd_max = client_fd + 1;
@@ -127,14 +126,14 @@ int main()
                   // EVENT: shutdown command
                   // TODO: implement and use server_command.cpp
 
-                  sprintf(serv_msg, "XServer is shutting down.\n");
+                  //sprintf(serv_msg, "XServer is shutting down.\n");
                   for (fd_cur2 = fd_min_client; fd_cur2 < fd_max; fd_cur2++)
                   {
                      if (FD_ISSET(fd_cur2, &readfds))
                      {
                         // TODO: send appr. packet to a client
 
-                        write(fd_cur2, serv_msg, strlen(serv_msg));
+                        client_sock[fd_cur2]->SendAck(PACKET_SERVER_SHUTDOWN);
                         close(fd_cur2);
                      }
                   }
@@ -144,11 +143,9 @@ int main()
                {
                   // EVENT: its not a command
                   // TODO: remove, replace chat function with server_command.cpp
-                  // TODO: teach client to catch packets
-                  sprintf(serv_msg, "MModerator: %s", kb_msg);
                   for (fd_cur2 = fd_min_client; fd_cur2 < fd_max; fd_cur2++)
                      if (FD_ISSET(fd_cur2, &readfds))
-                        write(fd_cur2, serv_msg, strlen(serv_msg));
+                        client_sock[fd_cur2]->SendChatMsg(kb_msg);
                }
             } else
             {

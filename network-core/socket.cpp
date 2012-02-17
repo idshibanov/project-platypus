@@ -1,8 +1,5 @@
 // Project Platypus
-// socket.cpp - implements ClientSocketArray and ClientSocketHandler classes
-
-// WILL DIVIDE SOON SOCKET.H AND SOCKET.CPP
-// INTO CLIENT AND SERVER PART, SEPARATED
+// socket.cpp - implements SocketHandler base class, used by both server and client
 
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -15,34 +12,29 @@
 #include <stdio.h>
 #include <string.h>
 
+// Implementation of SocketHandler class
 
-// Implementation of ClientSocketHandler class
-
-ClientSocketHandler::ClientSocketHandler(int socket, GameInstance* game)
+SocketHandler::SocketHandler(int socket)
 {
    // constructor is private, so we assume that socket data is ok
 
    _sockfd = socket;
    _pfirst = (NetPacket *)0;
-   _game = game;
-
-   // temp assignment, must be replaced with a proper auth. system
-   _status = STATUS_ACTIVE;
 }
 
-ClientSocketHandler::~ClientSocketHandler() { }
+SocketHandler::~SocketHandler() { }
 
-int ClientSocketHandler::GetSockNo()
+int SocketHandler::GetSockNo()
 {
    return _sockfd;
 }
 
-ClientSocketHandler::operator int()
+SocketHandler::operator int()
 {
    return _sockfd;
 }
 
-bool ClientSocketHandler::AddPacket(NetPacket* p)
+bool SocketHandler::AddPacket(NetPacket* p)
 {
    if (_pfirst)
    {
@@ -57,7 +49,7 @@ bool ClientSocketHandler::AddPacket(NetPacket* p)
    }
 }
 
-bool ClientSocketHandler::SendPacket(NetPacket* p)
+bool SocketHandler::SendPacket(NetPacket* p)
 {
    bool retval = false;
    uint snd;
@@ -69,7 +61,9 @@ bool ClientSocketHandler::SendPacket(NetPacket* p)
       snd = send(_sockfd, (const void*) &p->_buffer[0], p->_size, 0);
       if ( snd == p->_size)
       {
+         // EVENT: Packet sent succesfully
          retval = true;
+         
          // printf("SendPacket passed, size: %d\n", p->_size);
       }
    }
@@ -77,13 +71,13 @@ bool ClientSocketHandler::SendPacket(NetPacket* p)
    return retval;
 }
 
-bool ClientSocketHandler::SendPackets()
+bool SocketHandler::SendPackets()
 {
-   // implement it later
+   // TODO: implement it later
    return false;
 }
 
-bool ClientSocketHandler::RecvPacket()
+bool SocketHandler::RecvPacket()
 {
    bool retval = false;
    uint psize = sizeof(PacketSize);
@@ -106,32 +100,12 @@ bool ClientSocketHandler::RecvPacket()
    return retval;
 }
 
-bool ClientSocketHandler::HandlePacket(NetPacket* p)
+bool SocketHandler::SendAck(NetPacketType ack, bool val)
 {
-   // DEBUG: it is not a null pointer
-   assert(p != (NetPacket *)0);
-
+   NetPacket* p = new NetPacket(ack);
    bool retval = false;
 
-   switch(p->_buffer[p->_pos++])
-   {
-      case PACKET_CLIENT_CHAT:
-         retval = this->RecvChatMsg(p);
-         break;
-      case PACKET_CLIENT_FILE:
-         retval = this->RecvFile(p);
-         break;
-   }
-
-   return retval;
-}
-
-bool ClientSocketHandler::SendChatMsg(const char* msg)
-{
-   NetPacket* p = new NetPacket(PACKET_CLIENT_CHAT);
-   bool retval = false;
-
-   if ( p->SendString(msg) )
+   if ( p->SendBool(val) )
    {
       retval = this->SendPacket(p);
    }
@@ -142,34 +116,7 @@ bool ClientSocketHandler::SendChatMsg(const char* msg)
    return retval;
 }
 
-bool ClientSocketHandler::RecvChatMsg(NetPacket* p)
-{
-   // DEBUG: it is not a null pointer
-   assert(p != (NetPacket *)0);
-
-   bool retval = false;
-   char msg[p->_size+1];
-
-   // check if client is actually authorized to send this packet
-   if (_status != STATUS_ACTIVE) { }
-   else
-   {
-      if (p->RecvString(msg, p->_size - p->_sizeof_sizetype))
-      {
-         // printf("RecvString passed\n");
-      } else
-      {
-         // printf("RecvString returned false\n");
-      }
-
-      // got processed msg here
-      printf("Client says: %s", msg);
-      retval = true;
-   }
-   return retval;
-}
-
-bool ClientSocketHandler::SendFile(const char* msg)
+bool SocketHandler::SendFile(const char* msg)
 {
    // not working properly yet
 
@@ -177,9 +124,9 @@ bool ClientSocketHandler::SendFile(const char* msg)
    bool retval = false;
    int line;
 
-   for (line = 0; p->SendString(&msg[line]); line++);
+   p->SendString(msg);
    // loaded something
-   if (line) retval = this->SendPacket(p);
+   retval = this->SendPacket(p);
 
    // important
    delete p;
@@ -187,7 +134,7 @@ bool ClientSocketHandler::SendFile(const char* msg)
    return retval;
 }
 
-bool ClientSocketHandler::RecvFile(NetPacket* p)
+bool SocketHandler::RecvFile(NetPacket* p)
 {
    // not working properly yet
 
@@ -198,7 +145,7 @@ bool ClientSocketHandler::RecvFile(NetPacket* p)
    char msg[p->_size+1];
 
    // check if client is actually authorized to send this packet
-   if (_status != STATUS_ACTIVE) { }
+   if (0 /*_status != STATUS_ACTIVE */) { }
    else
    {
       printf("got packet, size: %d\n", p->_size);
@@ -211,89 +158,6 @@ bool ClientSocketHandler::RecvFile(NetPacket* p)
       } */
 
       retval = true;
-   }
-   return retval;
-}
-
-
-
-// Implementation of ClientSocketArray class
-
-ClientSocketArray::ClientSocketArray(GameInstance* game)
-{
-   _lenght = 0;
-   _game = game;
-}
-
-ClientSocketArray::~ClientSocketArray()
-{
-   int i;
-   for(i = 0; i < _lenght && _client_sock[i]; i++)
-      delete _client_sock[i];
-}
-
-bool ClientSocketArray::AddClient(int socket)
-{
-   // DEBUG: passed wrong socket #
-   assert(socket >= MIN_CLIENT_SOCKFD);
-
-   bool retval = false;
-
-   if (socket < MIN_CLIENT_SOCKFD) { }
-   else if ( _lenght < MAX_CLIENTS )
-   {
-      _client_sock[_lenght] = new ClientSocketHandler(socket, _game);
-      _lenght++;
-      retval = true;
-   }
-
-   return retval;
-}
-
-bool ClientSocketArray::RemoveClient(int socket)
-{
-   // DEBUG: passed wrong socket #
-   assert(socket >= MIN_CLIENT_SOCKFD);
-
-   bool retval = false;
-   int i;
-
-   for(i = 0; i < _lenght && _client_sock[i]; i++)
-   {
-      if (_client_sock[i]->_sockfd == socket)
-      {
-         delete _client_sock[i];
-         for(i += 1; i < _lenght && _client_sock[i]; i++)
-            _client_sock[i-1] = _client_sock[i];
-
-         _lenght--;
-         retval = true;
-         break;
-      }
-   }
-
-   return retval;
-}
-
-int ClientSocketArray::Lenght()
-{
-   return _lenght;
-}
-
-ClientSocketArray::operator int()
-{
-   return _lenght;
-}
-
-ClientSocketHandler* ClientSocketArray::operator [] (const int sockfd)
-{
-   ClientSocketHandler* retval = (ClientSocketHandler *)0;
-   int i;
-
-   for(i = 0; i < _lenght && _client_sock[i]; i++)
-   {
-      if (_client_sock[i]->_sockfd == sockfd)
-         retval = (ClientSocketHandler *) _client_sock[i];
    }
    return retval;
 }

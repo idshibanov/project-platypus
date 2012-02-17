@@ -9,7 +9,7 @@
 #include <netdb.h>
 
 #include "defines.h"
-#include "socket.h"
+#include "client_socket.h"
 
 int main() {
    struct addrinfo *ailist;
@@ -47,16 +47,17 @@ int main() {
                } else if (strcmp(message, "send junk.data\n") == 0) {
                   // not working properly yet
 
-                  // char fcont[30][MAX_PACKET_SIZE+1];
-                  // int row = 0;
+                   char fcont[MAX_PACKET_SIZE+1];
+                   int raw = 0;
 
-                  // FILE *fp;
-                  // fp=fopen("junk.data","r");
-                  // while(fgets(fcont[row++], MAX_PACKET_SIZE + 1, fp));
-                  // fclose(fp);
-                  // serv.SendFile((const char*) &fcont);
+                   FILE *fp;
+                   fp=fopen("junk.data","r");
+                   while(fcont[raw++] = fgetc(fp) != EOF);
+                   fcont[raw] = '\0';
+                   fclose(fp);
+                   serv.SendFile(fcont);
 
-                  // printf("sending file\n");
+                   printf("sending file\n");
                } else {
 
                   if (serv.SendChatMsg(message))
@@ -68,13 +69,7 @@ int main() {
                   }
                }
             } else {
-               result = read(sockfd, message, BUFSIZ);
-               message[result] = '\0';
-               printf("%s", message + 1);
-               if (message[0] == 'X') {
-                  close(sockfd);
-                  exit(EXIT_SUCCESS);
-               }
+               serv.RecvPacket();
             }
          }
       }
