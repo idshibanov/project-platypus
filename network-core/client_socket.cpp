@@ -28,7 +28,7 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
       case PACKET_SERVER_FULL:
          if (_status == STATUS_CLIENT_INACTIVE )
          {
-            printf("Sorry, server if full\n");            
+            printf("Sorry, server is full\n");            
             // TODO: disconnect            
             retval = true;
          }

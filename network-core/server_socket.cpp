@@ -1,5 +1,5 @@
 // Project Platypus
-// socket.cpp - implements ServerSocketArray and ServerSocketHandler classes
+// server_socket.cpp - implements ServerSocketArray and ServerSocketHandler classes
 
 #include "defines.h"
 #include "server_socket.h"
@@ -167,6 +167,7 @@ bool ServerSocketArray::AddClient(int socket)
    else if ( _lenght < MAX_CLIENTS )
    {
       _client_sock[_lenght] = new ServerSocketHandler(socket, _game);
+      _client_sock[_lenght]->SendAck(PACKET_SERVER_WELCOME);
       _lenght++;
       retval = true;
    } else {
@@ -202,6 +203,20 @@ bool ServerSocketArray::RemoveClient(int socket)
    return retval;
 }
 
+void ServerSocketArray::ClearList()
+{
+   int i;
+   for(i = 0; i < _lenght && _client_sock[i]; i++)
+   {
+      delete _client_sock[i];
+      
+      // so we cant delete memory again
+      _client_sock[i] = (ServerSocketHandler*) 0;
+   }
+   
+   _lenght = 0;
+}
+
 int ServerSocketArray::Lenght()
 {
    return _lenght;
@@ -212,7 +227,7 @@ ServerSocketArray::operator int()
    return _lenght;
 }
 
-ServerSocketHandler* ServerSocketArray::operator [] (const int sockfd)
+ServerSocketHandler* ServerSocketArray::GetClient (const int sockfd)
 {
    ServerSocketHandler* retval = (ServerSocketHandler *)0;
    int i;
@@ -223,5 +238,10 @@ ServerSocketHandler* ServerSocketArray::operator [] (const int sockfd)
          retval = (ServerSocketHandler *) _client_sock[i];
    }
    return retval;
+}
+
+ServerSocketHandler* ServerSocketArray::operator [] (const int sockfd)
+{
+   return GetClient(sockfd);
 }
 

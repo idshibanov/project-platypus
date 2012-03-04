@@ -19,6 +19,9 @@ enum ServerStatus
 
 class ServerSocketHandler : public SocketHandler
 {
+   // network address of a client (for admin reasons)
+   // sockaddr_in _net_addr;
+
    // status of a client for protection reasons
    ServerStatus _status;
    
@@ -65,9 +68,15 @@ class ServerSocketArray
 
    // remove a client from an array, automatically moves others
    bool RemoveClient(int socket);
+   
+   // wipe everything
+   void ClearList();
 
    // returns current number of clients in the array
    int Lenght();
+   
+   // get a client pointer from an array
+   ServerSocketHandler* GetClient (const int sockfd);
 
    // we can cast a class to an int
    // returns current number of clients in the array

@@ -16,8 +16,13 @@ enum NetPacketType
    
    PACKET_SERVER_FULL,           // server rejects client (server is full)
    PACKET_SERVER_WELCOME,        // server welcomes client
+   
    PACKET_SERVER_SHUTDOWN,       // server exits
    PACKET_CLIENT_DISCONNECT,     // client exits
+   
+   PACKET_SERVER_KICK,           // server kicks client
+   PACKET_SERVER_BAN,            // server bans client
+   
    PACKET_SERVER_ERROR,          // server responds if got wrong packet
    PACKET_CLIENT_ERROR,          // client responds if got wrong packet
    
@@ -62,7 +67,7 @@ class NetPacket
    // it always must be exactly 3 bytes, but.. everything happens
    const static uint _sizeof_sizetype = sizeof(PacketSize) + sizeof(uchar);
 
-   // 2 constructors - for read and write packets
+   // 2 constructors - for read/write packets
    NetPacket(SocketHandler* sock);
    NetPacket(NetPacketType type);
 
@@ -85,6 +90,8 @@ class NetPacket
 
    // SocketHandler owns it and can access data directly
    friend class SocketHandler;
+   
+   // HACK - friendship is not inherited
    friend class ClientSocketHandler;
    friend class ServerSocketHandler;
 };
