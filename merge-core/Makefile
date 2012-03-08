@@ -1,4 +1,4 @@
-all: server
+all: ${OBJ_DEST} server nclient
 cc=c++
 BIN_DEST = ./dist
 OBJ_DEST = ./dist
@@ -8,8 +8,12 @@ NET_SRC = ./net
 # Binaries
 server: server_main.o server.o packet.o socket.o server_socket.o
 	$(cc) $(OBJ_DEST)/server_main.o $(OBJ_DEST)/server.o $(OBJ_DEST)/packet.o $(OBJ_DEST)/socket.o $(OBJ_DEST)/server_socket.o -o $(BIN_DEST)/server
+
 client: client_main.o packet.o socket.o client_socket.o
 	$(cc) $(OBJ_DEST)/client_main.o $(OBJ_DEST)/packet.o $(OBJ_DEST)/socket.o $(OBJ_DEST)/client_socket.o -o $(BIN_DEST)/client
+
+nclient: nclient.o packet.o socket.o client_socket.o
+	$(cc) $(OBJ_DEST)/nclient.o $(OBJ_DEST)/packet.o $(OBJ_DEST)/socket.o $(OBJ_DEST)/client_socket.o -lncurses -o $(BIN_DEST)/nclient
 
 # Server sources
 server_main.o: server_main.cpp $(CORE_SRC)/defines.h
@@ -17,6 +21,9 @@ server_main.o: server_main.cpp $(CORE_SRC)/defines.h
 
 server.o: server.cpp server.h
 	$(cc) -o $(OBJ_DEST)/server.o -c server.cpp
+	
+nclient.o: nclient.cpp nclient.h
+	$(cc) -o $(OBJ_DEST)/nclient.o -c nclient.cpp
 
 # Client sources
 client_main.o: client_main.cpp $(CORE_SRC)/defines.h
@@ -34,6 +41,9 @@ packet.o: $(NET_SRC)/packet.cpp $(NET_SRC)/packet.h
 
 socket.o: $(NET_SRC)/socket.cpp $(NET_SRC)/socket.h
 	$(cc) -o $(OBJ_DEST)/socket.o -c $(NET_SRC)/socket.cpp
+	
+${OBJ_DEST}:
+	@@mkdir -p ${OBJ_DEST}
 
 # Delete objects
 clean:

@@ -42,6 +42,7 @@ class ServerSocketHandler : public SocketHandler
    bool SendChatMsg(const char* msg);
    bool RecvChatMsg(NetPacket* p);
    bool RecvClientLogin(NetPacket* p);
+   bool RecvClientMovement(NetPacket* p);
    
    friend class ServerSocketArray;
 };

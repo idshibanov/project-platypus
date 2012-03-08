@@ -6,6 +6,7 @@
 
 #include "socket.h"
 
+class GameClient;
 class NetPacket;
 
 enum ClientStatus
@@ -22,15 +23,17 @@ class ClientSocketHandler : public SocketHandler
 {
    // status of a connection for protection reasons
    ClientStatus _status;
+   GameClient* _gc;
   
    public:
    
-   ClientSocketHandler(int socket);   
+   ClientSocketHandler(int socket, GameClient* gc);   
    virtual ~ClientSocketHandler();
    bool HandlePacket(NetPacket *p);
    bool SendChatMsg(const char* msg);
    bool RecvChatMsg(NetPacket* p);
    bool RecvAck(NetPacket* p);
+   bool SendMovement(unsigned int side);
 };
 
 #endif /* PLA_NET_CLIENT_SOCKET_H */

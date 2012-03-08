@@ -269,7 +269,7 @@ void GameServer::broadcast(const char* str, int fd)
    for (int fd_cur = _min_client_fd; fd_cur < _max_client_fd; fd_cur++)
    {
       // default fd is -1
-      printf("broadcasting to %d, min: %d, max: %d\n", fd_cur, _min_client_fd, _max_client_fd);
+      // printf("broadcasting to %d, min: %d, max: %d\n", fd_cur, _min_client_fd, _max_client_fd);
    
       if (FD_ISSET(fd_cur, &_readfds))
       {

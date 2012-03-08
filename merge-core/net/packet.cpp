@@ -102,6 +102,42 @@ uchar NetPacket::RecvUchar()
    return (_pos < _size) ? _buffer[_pos++] : 0;
 }
 
+bool NetPacket::SendUint(uint data)
+{
+   bool retval = false;
+   
+   // return false if we exceed max packet size
+   if (_size + sizeof(data) > MAX_PACKET_SIZE) { }
+   else
+   {
+      _buffer[_size++] = GB(data, 0);
+      _buffer[_size++] = GB(data, 8);
+      _buffer[_size++] = GB(data, 16);
+      _buffer[_size++] = GB(data, 24);
+      retval = true;
+   }
+   
+   return retval;
+}
+
+uint NetPacket::RecvUint()
+{
+
+   // DEBUG: check if there is data left
+   assert(_pos < _size);
+   
+   uint retval;
+   
+   retval = (uint)_buffer[_pos++];
+   retval = (uint)_buffer[_pos++] << 8;
+   retval = (uint)_buffer[_pos++] << 16;
+   retval = (uint)_buffer[_pos++] << 24;
+   
+   printf("got %d", retval);
+   
+   return retval;
+}
+
 bool NetPacket::SendString(const char* data)
 {
    // DEBUG: check if there is data

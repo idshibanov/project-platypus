@@ -27,7 +27,7 @@ enum NetPacketType
    PACKET_CLIENT_ERROR,          // client responds if got wrong packet
    
    PACKET_CLIENT_AUTHORIZE,      // client sends login information
-   PACKET_SERVER_AUTH_RESPONCE,  // server responds with passed/failed
+   PACKET_SERVER_AUTH_RESPONSE,  // server responds with passed/failed
    
    PACKET_CLIENT_JOIN,           // client asks to join game
    PACKET_SERVER_JOIN_MAP,       // server sends game map
@@ -36,7 +36,7 @@ enum NetPacketType
    PACKET_SERVER_MAP_CHANGE,     // server says that something is changed
    
    PACKET_CLIENT_MOVEMENT,       // client tries to move
-   PACKET_SERVER_MOVE_RESPONCE,  // server allows/denies
+   PACKET_SERVER_MOVE_RESPONSE,  // server allows/denies
    
    PACKET_CLIENT_CHAT,           // client sends a message
    PACKET_SERVER_CHAT,           // server sends a message
@@ -85,6 +85,8 @@ class NetPacket
    bool RecvBool();
    bool SendUchar(uchar data);
    uchar RecvUchar();
+   bool SendUint(uint data);
+   uint RecvUint();
    bool SendString(const char* data);
    bool RecvString(char* buf, uint16 size);
 

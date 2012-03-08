@@ -1,12 +1,17 @@
 // Project Platypus
 // client_socket.cpp - implements ClientSocketHandler class
 
-#include "client_socket.h"
 #include <stdio.h>
+#include <string>
+#include <sys/select.h>
 
-ClientSocketHandler::ClientSocketHandler(int socket) : SocketHandler(socket)
+#include "../nclient.h"
+#include "client_socket.h"
+
+ClientSocketHandler::ClientSocketHandler(int socket, GameClient* gc) : SocketHandler(socket)
 {
    _status = STATUS_CLIENT_INACTIVE;
+   _gc = gc;
 }
 
 ClientSocketHandler::~ClientSocketHandler()
@@ -19,7 +24,7 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
    // DEBUG: it is not a null pointer
    assert(p != (NetPacket *)0);
    
-   printf("got %d bytes, packet %d\n", p->_size, p->_buffer[p->_pos]);
+   // printf("got %d bytes, packet %d\n", p->_size, p->_buffer[p->_pos]);
    
    bool retval = false;
 
@@ -28,8 +33,8 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
       case PACKET_SERVER_FULL:
          if (_status == STATUS_CLIENT_INACTIVE )
          {
-            printf("Sorry, server is full\n");            
-            // TODO: disconnect            
+            // printf("Sorry, server is full\n");            
+            // TODO: disconnect      
             retval = true;
          }
          break;
@@ -45,7 +50,7 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
          // TODO: disconnect
          retval = true;
          break;
-      case PACKET_SERVER_AUTH_RESPONCE:
+      case PACKET_SERVER_AUTH_RESPONSE:
          if (_status == STATUS_CLIENT_NOT_AUTH )
          {
             if (p->RecvBool())
@@ -68,13 +73,14 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
             //retval = this->RecvMapChange();
          }
          break;
-      case PACKET_SERVER_MOVE_RESPONCE:
+      case PACKET_SERVER_MOVE_RESPONSE:
          if (_status == STATUS_CLIENT_ACTIVE )
          {
             if (p->RecvBool())
             {
                // EVENT: recieved true on request
                // TODO: move character
+               _gc->ncurses_temp_out("Move Resp got");
             }
             retval = true;
          }
@@ -124,13 +130,21 @@ bool ClientSocketHandler::RecvChatMsg(NetPacket* p)
       if (p->RecvString(msg, p->_size - p->_sizeof_sizetype))
       {
          // printf("RecvString passed\n");
+         
+         // got processed msg here
+         #ifdef PLA_TEMP_NCURSES_OUTPUT
+         _gc->ncurses_temp_out(msg);
+         #endif
+         #ifndef PLA_TEMP_NCURSES_OUTPUT
+         printf("Server says: %s", msg);
+         #endif
+         
       } else
       {
          // printf("RecvString returned false\n");
       }
 
-      // got processed msg here
-      printf("Server says: %s", msg);
+
       retval = true;
    }
    return retval;
@@ -142,6 +156,23 @@ bool ClientSocketHandler::RecvAck(NetPacket* p)
    assert(p != (NetPacket *)0);
 
    bool retval = false;
+
+   return retval;
+}
+
+
+bool ClientSocketHandler::SendMovement(unsigned int side)
+{
+   NetPacket* p = new NetPacket(PACKET_CLIENT_MOVEMENT);
+   bool retval = false;
+
+   if ( p->SendUint(side) )
+   {
+      retval = this->SendPacket(p);
+   }
+
+   // important
+   delete p;
 
    return retval;
 }

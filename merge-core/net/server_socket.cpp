@@ -53,7 +53,7 @@ bool ServerSocketHandler::HandlePacket(NetPacket* p)
          }
          break;
       case PACKET_CLIENT_MOVEMENT:
-         // retval = this->RecvMove(p);
+         retval = this->RecvClientMovement(p);
          break;
       case PACKET_CLIENT_CHAT:
          retval = this->RecvChatMsg(p);
@@ -139,6 +139,26 @@ bool ServerSocketHandler::RecvClientLogin(NetPacket* p)
    }
 
    return retval;   
+}
+
+bool ServerSocketHandler::RecvClientMovement(NetPacket* p)
+{
+   // DEBUG: it is not a null pointer
+   assert(p != (NetPacket *)0);
+
+   bool retval = false;
+   
+   // TODO: proper handling
+
+
+   unsigned int mvm = p->RecvUint();
+
+   //server->broadcast_movement(client, newpos);
+   SendAck(PACKET_SERVER_MOVE_RESPONSE, true);
+
+   retval = true;
+
+   return retval;
 }
 
 

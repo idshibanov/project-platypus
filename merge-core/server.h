@@ -25,7 +25,7 @@ class GameServer
    // default & non-default constructor
    GameServer(int port = SERV_PORT);
    
-   ~GameServer();
+   virtual ~GameServer();
    
    bool start_service();
    
