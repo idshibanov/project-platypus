@@ -80,7 +80,7 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
             {
                // EVENT: recieved true on request
                // TODO: move character
-               _gc->ncurses_temp_out("Move Resp got");
+               _gc->ncurses_temp_out((char*)"Move Resp got");
             }
             retval = true;
          }

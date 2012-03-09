@@ -119,7 +119,6 @@ bool GameClient::run_select()
                 _message = string( buffer );
                 _message.insert( 0, ": " );
                 _message.insert( 0, _username);
-                //write( _server_sock, _message.c_str(), _message.size() );
                 _serv_sh->SendChatMsg(_message.c_str());
                 _cw->addMessage( _message );
               }
@@ -138,12 +137,6 @@ bool GameClient::run_select()
             endwin();         
             exit(0);
           }
-
-          //nread = read( fd, buffer, nread );
-          //buffer[nread] = '\0';
-
-          //cw->addMessage( string( buffer ) );
-          //clear();
           
           _serv_sh->RecvPacket();
           
@@ -208,10 +201,7 @@ void GameClient::drawScreen( int x, int y ) {
 
 void GameClient::ncurses_temp_out(char* str)
 {
-   //string tmp("Server: ");
-   //tmp.append(str);
    _cw->addMessage( string(str) );
-   clear();
 }
 
 
