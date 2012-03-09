@@ -4,8 +4,8 @@
 #ifndef PLA_SERVER_H
 #define PLA_SERVER_H
 
-#include "game.h"
-#include "./net/server_socket.h"
+#include "../game/game.h"
+#include "../net/server_socket.h"
 #include <sys/select.h>
 
 class GameServer 

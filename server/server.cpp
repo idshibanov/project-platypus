@@ -1,8 +1,8 @@
 // Project Platypus
 // server.cpp - implements GameServer class & holds main()
 
-#include "./core/defines.h"
-#include "game.h"
+#include "../core/defines.h"
+#include "../game/game.h"
 #include "server.h"
 
 #include <stdio.h>

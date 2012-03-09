@@ -18,8 +18,8 @@ using namespace std;
 
 #include "nclient_core.h"
 #include "nclient.h"
-#include "./core/defines.h"
-#include "./net/client_socket.h"
+#include "../core/defines.h"
+#include "../net/client_socket.h"
 
 GameClient::GameClient(int port)
 {

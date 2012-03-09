@@ -2,7 +2,7 @@
 // server_socket.cpp - implements ServerSocketArray and ServerSocketHandler classes
 
 #include "../core/defines.h"
-#include "../server.h"
+#include "../server/server.h"
 #include "server_socket.h"
 #include <stdio.h>
 

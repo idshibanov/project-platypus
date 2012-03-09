@@ -5,7 +5,7 @@
 #include <string>
 #include <sys/select.h>
 
-#include "../nclient.h"
+#include "../ncurses/nclient.h"
 #include "client_socket.h"
 
 ClientSocketHandler::ClientSocketHandler(int socket, GameClient* gc) : SocketHandler(socket)
