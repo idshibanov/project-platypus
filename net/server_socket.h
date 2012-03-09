@@ -52,8 +52,8 @@ class ServerSocketArray
    // array of ptrs to DYNAMICALLY allocated SocketHandlers
    ServerSocketHandler* _client_sock[MAX_CLIENTS];
 
-   // lenght of an array
-   uint _lenght;
+   // length of an array
+   uint _length;
    
    // array is associated with this server
    GameServer* _serv;
@@ -75,7 +75,7 @@ class ServerSocketArray
    void ClearList();
 
    // returns current number of clients in the array
-   int Lenght();
+   int Length();
    
    // get a client pointer from an array
    ServerSocketHandler* GetClient (const int sockfd);
