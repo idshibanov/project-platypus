@@ -121,13 +121,13 @@ bool ClientSocketHandler::RecvChatMsg(NetPacket* p)
    assert(p != (NetPacket *)0);
 
    bool retval = false;
-   char msg[p->_size+1];
+   char* msg = new char[p->_size+1];
 
    // check if client is actually authorized to send this packet
    if (0 /*_status != STATUS_CLIENT_ACTIVE */) { }
    else
    {
-      if (p->RecvString(msg, p->_size - p->_sizeof_sizetype))
+      if (p->RecvString(msg))
       {
          // printf("RecvString passed\n");
          
@@ -147,6 +147,7 @@ bool ClientSocketHandler::RecvChatMsg(NetPacket* p)
 
       retval = true;
    }
+   delete [] msg;
    return retval;
 }
 

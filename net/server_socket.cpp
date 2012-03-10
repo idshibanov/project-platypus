@@ -23,7 +23,7 @@ bool ServerSocketHandler::HandlePacket(NetPacket* p)
    // DEBUG: it is not a null pointer
    assert(p != (NetPacket *)0);
    
-   printf("got %d bytes, packet %d\n", p->_size, p->_buffer[p->_pos]);
+   //printf("got %d bytes, packet %d\n", p->_size, p->_buffer[p->_pos]);
    bool retval = false;
 
    switch(p->_buffer[p->_pos++])
@@ -88,24 +88,25 @@ bool ServerSocketHandler::RecvChatMsg(NetPacket* p)
    assert(p != (NetPacket *)0);
 
    bool retval = false;
-   char msg[p->_size+1];
+   char* msg = new char[p->_size+1];
 
    // check if client is actually authorized to send this packet
    if (0 /*_status != STATUS_SERVER_ACTIVE */) { }
    else
    {
-      if (p->RecvString(msg, p->_size - p->_sizeof_sizetype))
+      if (p->RecvString(msg))
       {
-         // printf("RecvString passed\n");
+         // got processed msg here
+         string tmp(msg);
+         _serv->broadcast( tmp.c_str(), _sockfd);
+         _serv->log( tmp.insert( 0, "Client " ) );
+         retval = true;
       } else
       {
          // printf("RecvString returned false\n");
       }
-
-      // got processed msg here
-      printf("Client says: %s", msg);
-      retval = true;
    }
+   delete [] msg;
    return retval;
 }
 
@@ -130,7 +131,7 @@ bool ServerSocketHandler::RecvClientLogin(NetPacket* p)
    if (_status != STATUS_SERVER_INACTIVE ) { }
    else
    {
-      p->RecvString(msg, p->_size - p->_sizeof_sizetype);
+      p->RecvString(msg);
       
       // TODO: login system
       
@@ -152,6 +153,8 @@ bool ServerSocketHandler::RecvClientMovement(NetPacket* p)
 
 
    unsigned int mvm = p->RecvUint();
+   
+   printf("Client %d tries to move in direction %d\n", _sockfd, mvm);
 
    //server->broadcast_movement(client, newpos);
    SendAck(PACKET_SERVER_MOVE_RESPONSE, true);

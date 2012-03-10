@@ -5,6 +5,7 @@
 #include "../game/game.h"
 #include "server.h"
 
+#include <string>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,6 +16,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
+
+using namespace std;
 
 GameServer::GameServer(int port)
 {
@@ -147,9 +150,7 @@ bool GameServer::run_select()
                if (nread == 0)
                {
                   // EVENT: got junk, kill client
-                  _client_sock->RemoveClient(fd_cur);
-                  close(fd_cur);
-                  FD_CLR(fd_cur, &_readfds);
+                  kill_client(fd_cur);
 
                } else
                {
@@ -273,8 +274,17 @@ void GameServer::broadcast(const char* str, int fd)
    
       if (FD_ISSET(fd_cur, &_readfds))
       {
-         _client_sock->GetClient(fd_cur)->SendChatMsg(str);
+         if (fd_cur != fd)
+            _client_sock->GetClient(fd_cur)->SendChatMsg(str);
       }
    }
+}
+
+void GameServer::log (string message)
+{
+   if (message.empty())
+      return;
+      
+   printf("%s\n", message.c_str());
 }
 

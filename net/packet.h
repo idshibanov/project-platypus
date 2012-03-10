@@ -88,7 +88,7 @@ class NetPacket
    bool SendUint(uint data);
    uint RecvUint();
    bool SendString(const char* data);
-   bool RecvString(char* buf, uint16 size);
+   bool RecvString(char* buf);
 
    // SocketHandler owns it and can access data directly
    friend class SocketHandler;
