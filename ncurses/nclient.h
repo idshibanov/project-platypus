@@ -2,7 +2,7 @@
 #ifndef PLA_NCLIENT_H
 #define PLA_NCLIENT_H
 
-#include "./core/defines.h"
+#include "../core/defines.h"
 
 #define PLA_TEMP_NCURSES_OUTPUT
 #define CHATSIZE 15

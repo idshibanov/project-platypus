@@ -18,16 +18,14 @@ using namespace std;
 
 #include "nclient_core.h"
 #include "nclient.h"
-#include "./core/defines.h"
-#include "./net/client_socket.h"
+#include "../core/defines.h"
+#include "../net/client_socket.h"
 
-GameClient::GameClient(int port)
+GameClient::GameClient(int port):
+  _port( port ),
+  _c( new Character() ),
+  _serv_sh( (ClientSocketHandler* )0 )
 {
-   _port = port;
-   _cw = new ChatWindow( LINES - (CHATSIZE+2), CHATSIZE - 2);
-   _c = new Character();
-   _serv_sh = (ClientSocketHandler* )0;
-   
    net_connect();
 }
 
@@ -84,28 +82,24 @@ bool GameClient::run_select()
           ch = getch();
           switch ( ch ) {
             case KEY_DOWN:
-              //write(server_sock, "KEY_DOWN PRESSED", 17);
               _serv_sh->SendMovement(2);
               if ( _c->y < ( LINES - CHATSIZE ) - 3 ) {
                 _c->y++;
               }
               break;
             case KEY_UP:
-              //write(server_sock, "KEY_UP PRESSED", 15);
               _serv_sh->SendMovement(8);
               if ( _c->y > 1 ) {
                 _c->y--;
               }
               break;
             case KEY_LEFT:
-              //write(server_sock, "KEY_LEFT PRESSED", 17);
               _serv_sh->SendMovement(4);
               if ( _c->x > 2 ) {
                 _c->x--;
               }
               break;
             case KEY_RIGHT:
-              //write(server_sock, "KEY_RIGHT PRESSED", 18);
               _serv_sh->SendMovement(6);
               if ( _c->x < COLS-2) {
                 _c->x++;
@@ -125,7 +119,6 @@ bool GameClient::run_select()
                 _message = string( buffer );
                 _message.insert( 0, ": " );
                 _message.insert( 0, _username);
-                //write( _server_sock, _message.c_str(), _message.size() );
                 _serv_sh->SendChatMsg(_message.c_str());
                 _cw->addMessage( _message );
               }
@@ -144,13 +137,6 @@ bool GameClient::run_select()
             endwin();         
             exit(0);
           }
-
-          //nread = read( fd, buffer, nread );
-          //buffer[nread] = '\0';
-
-          //cw->addMessage( string( buffer ) );
-          //clear();
-          //cw->draw();
           
           _serv_sh->RecvPacket();
           
@@ -177,6 +163,7 @@ void GameClient::init_curses()
    noecho();
    nonl();
    curs_set(0);
+   _cw = new ChatWindow( LINES - (CHATSIZE+2), CHATSIZE - 2);
    
    // initially from main()
    _c->x = _c->y = 2;
@@ -208,15 +195,13 @@ void GameClient::drawScreen( int x, int y ) {
 
   move( LINES - CHATSIZE - 2, COLS -1 );
   addch( ACS_RTEE );
+
+  _cw->draw();  
 }
 
 void GameClient::ncurses_temp_out(char* str)
 {
-   //string tmp("Server: ");
-   //tmp.append(str);
    _cw->addMessage( string(str) );
-   clear();
-   _cw->draw();
 }
 
 

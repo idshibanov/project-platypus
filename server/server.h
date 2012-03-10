@@ -4,12 +4,12 @@
 #ifndef PLA_SERVER_H
 #define PLA_SERVER_H
 
+#include "../game/game.h"
+#include "../net/server_socket.h"
+#include <sys/select.h>
+
 #include <string>
 using namespace std;
-
-#include "game.h"
-#include "./net/server_socket.h"
-#include <sys/select.h>
 
 class GameServer 
 {  

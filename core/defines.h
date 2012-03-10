@@ -4,7 +4,7 @@
 #ifndef PLA_DEFINES_H
 #define PLA_DEFINES_H
 
-// uncomment to exit debug mode - disables all assert() and prn_debug functions
+// uncomment to exit debug mode - disables all assert() functions
 //#define NDEBUG
 #include <assert.h>
 

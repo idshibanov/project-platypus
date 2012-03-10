@@ -2,8 +2,7 @@
 // server_socket.cpp - implements ServerSocketArray and ServerSocketHandler classes
 
 #include "../core/defines.h"
-#include "../core/datatypes.h"
-#include "../server.h"
+#include "../server/server.h"
 #include "server_socket.h"
 #include <stdio.h>
 
@@ -24,7 +23,7 @@ bool ServerSocketHandler::HandlePacket(NetPacket* p)
    // DEBUG: it is not a null pointer
    assert(p != (NetPacket *)0);
    
-   printf("got %d bytes, packet %d\n", p->_size, p->_buffer[p->_pos]);
+   //printf("got %d bytes, packet %d\n", p->_size, p->_buffer[p->_pos]);
    bool retval = false;
 
    switch(p->_buffer[p->_pos++])
@@ -104,7 +103,7 @@ bool ServerSocketHandler::RecvChatMsg(NetPacket* p)
          retval = true;
       } else
       {
-         //printf("RecvString returned false\n");
+         // printf("RecvString returned false\n");
       }
    }
    delete [] msg;
@@ -154,6 +153,8 @@ bool ServerSocketHandler::RecvClientMovement(NetPacket* p)
 
 
    unsigned int mvm = p->RecvUint();
+   
+   printf("Client %d tries to move in direction %d\n", _sockfd, mvm);
 
    //server->broadcast_movement(client, newpos);
    SendAck(PACKET_SERVER_MOVE_RESPONSE, true);
@@ -168,14 +169,14 @@ bool ServerSocketHandler::RecvClientMovement(NetPacket* p)
 
 ServerSocketArray::ServerSocketArray(GameServer* serv)
 {
-   _lenght = 0;
+   _length = 0;
    _serv = serv;
 }
 
 ServerSocketArray::~ServerSocketArray()
 {
    int i;
-   for(i = 0; i < _lenght && _client_sock[i]; i++)
+   for(i = 0; i < _length && _client_sock[i]; i++)
       delete _client_sock[i];
 }
 
@@ -187,11 +188,11 @@ bool ServerSocketArray::AddClient(int socket)
    bool retval = false;
 
    if (socket < MIN_CLIENT_SOCKFD) { }
-   else if ( _lenght < MAX_CLIENTS )
+   else if ( _length < MAX_CLIENTS )
    {
-      _client_sock[_lenght] = new ServerSocketHandler(socket, _serv);
-      _client_sock[_lenght]->SendAck(PACKET_SERVER_WELCOME);
-      _lenght++;
+      _client_sock[_length] = new ServerSocketHandler(socket, _serv);
+      _client_sock[_length]->SendAck(PACKET_SERVER_WELCOME);
+      _length++;
       retval = true;
    } else {
       ServerSocketHandler tmp(socket, _serv);
@@ -209,15 +210,15 @@ bool ServerSocketArray::RemoveClient(int socket)
    bool retval = false;
    int i;
 
-   for(i = 0; i < _lenght && _client_sock[i]; i++)
+   for(i = 0; i < _length && _client_sock[i]; i++)
    {
       if (_client_sock[i]->_sockfd == socket)
       {
          delete _client_sock[i];
-         for(i += 1; i < _lenght && _client_sock[i]; i++)
+         for(i += 1; i < _length && _client_sock[i]; i++)
             _client_sock[i-1] = _client_sock[i];
 
-         _lenght--;
+         _length--;
          retval = true;
          break;
       }
@@ -229,7 +230,7 @@ bool ServerSocketArray::RemoveClient(int socket)
 void ServerSocketArray::ClearList()
 {
    int i;
-   for(i = 0; i < _lenght && _client_sock[i]; i++)
+   for(i = 0; i < _length && _client_sock[i]; i++)
    {
       delete _client_sock[i];
       
@@ -237,17 +238,17 @@ void ServerSocketArray::ClearList()
       _client_sock[i] = (ServerSocketHandler*) 0;
    }
    
-   _lenght = 0;
+   _length = 0;
 }
 
-int ServerSocketArray::Lenght()
+int ServerSocketArray::Length()
 {
-   return _lenght;
+   return _length;
 }
 
 ServerSocketArray::operator int()
 {
-   return _lenght;
+   return _length;
 }
 
 ServerSocketHandler* ServerSocketArray::GetClient (const int sockfd)
@@ -255,7 +256,7 @@ ServerSocketHandler* ServerSocketArray::GetClient (const int sockfd)
    ServerSocketHandler* retval = (ServerSocketHandler *)0;
    int i;
 
-   for(i = 0; i < _lenght && _client_sock[i]; i++)
+   for(i = 0; i < _length && _client_sock[i]; i++)
    {
       if (_client_sock[i]->_sockfd == sockfd)
          retval = (ServerSocketHandler *) _client_sock[i];

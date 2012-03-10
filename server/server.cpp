@@ -1,6 +1,11 @@
 // Project Platypus
 // server.cpp - implements GameServer class & holds main()
 
+#include "../core/defines.h"
+#include "../game/game.h"
+#include "server.h"
+
+#include <string>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,12 +17,7 @@
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
 
-#include <string>
 using namespace std;
-
-#include "./core/defines.h"
-#include "game.h"
-#include "server.h"
 
 GameServer::GameServer(int port)
 {
@@ -150,9 +150,7 @@ bool GameServer::run_select()
                if (nread == 0)
                {
                   // EVENT: got junk, kill client
-                  _client_sock->RemoveClient(fd_cur);
-                  close(fd_cur);
-                  FD_CLR(fd_cur, &_readfds);
+                  kill_client(fd_cur);
 
                } else
                {
@@ -267,7 +265,7 @@ bool GameServer::parse_cmd()
    return true;
 }
 
-void GameServer::broadcast (const char* str, int fd)
+void GameServer::broadcast(const char* str, int fd)
 {
    for (int fd_cur = _min_client_fd; fd_cur < _max_client_fd; fd_cur++)
    {

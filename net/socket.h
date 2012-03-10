@@ -5,7 +5,7 @@
 #define PLA_NET_SOCKET_H
 
 #include "../core/defines.h"
-#include "../game.h"
+#include "../game/game.h"
 #include "packet.h"
 
 class NetPacket;

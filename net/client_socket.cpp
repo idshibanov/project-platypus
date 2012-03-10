@@ -5,7 +5,7 @@
 #include <string>
 #include <sys/select.h>
 
-#include "../nclient.h"
+#include "../ncurses/nclient.h"
 #include "client_socket.h"
 
 ClientSocketHandler::ClientSocketHandler(int socket, GameClient* gc) : SocketHandler(socket)
@@ -80,7 +80,7 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
             {
                // EVENT: recieved true on request
                // TODO: move character
-               _gc->ncurses_temp_out("Move Resp got");
+               _gc->ncurses_temp_out((char*)"Move Resp got");
             }
             retval = true;
          }
@@ -106,7 +106,6 @@ bool ClientSocketHandler::SendChatMsg(const char* msg)
 
    if ( p->SendString(msg) )
    {
-      p->SendBool(true);
       retval = this->SendPacket(p);
    }
 

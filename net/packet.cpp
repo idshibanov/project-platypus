@@ -37,7 +37,7 @@ NetPacket::~NetPacket()
 
 void NetPacket::PrepareToSend()
 {
-   printf("sent %d bytes\n", _size);
+   //printf("sent %d bytes\n", _size);
    _pos = 0;
 
    // implement standart realloc function
@@ -170,22 +170,17 @@ bool NetPacket::RecvString(char* buf)
    bool retval = false;
    uint i;
 
-   // return false if it is asked to get more than it contains
-   // if (size > _size - _pos) { }
-   // else
-   // {
-      //i = strlen((const char*)&_buffer[_pos]);
-      //strcpy(buf, (const char*)&_buffer[_pos]);
-      //_pos += i;
-      //buf[i] = '\0';
+   // strcpy works buggy, replaced with plain while loop
+   
+   //i = strlen((const char*)&_buffer[_pos]);
+   //strcpy(buf, (const char*)&_buffer[_pos]);
+   //_pos += i;
       
-      int k = 0;
-      while ((buf[k++] = _buffer[_pos++]) != '\0' && _pos < _size);
-      buf[k++] = '\0';
+   int k = 0;
+   while ((buf[k++] = _buffer[_pos++]) != '\0' && _pos < _size);
+   buf[k++] = '\0';
       
-      retval = true;
-      
-   // }
+   retval = true;
 
    return retval;
 }
