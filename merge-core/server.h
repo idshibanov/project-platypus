@@ -4,6 +4,9 @@
 #ifndef PLA_SERVER_H
 #define PLA_SERVER_H
 
+#include <string>
+using namespace std;
+
 #include "game.h"
 #include "./net/server_socket.h"
 #include <sys/select.h>
@@ -38,6 +41,7 @@ class GameServer
    bool kill_client(int fd);
    bool parse_cmd();
    void broadcast(const char* str, int fd = -1);
+   void log (string message);
 };
 
 #endif /* PLA_NET_SERVER_SOCKET_H */

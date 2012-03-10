@@ -128,12 +128,13 @@ uint NetPacket::RecvUint()
    
    uint retval;
    
-   retval = (uint)_buffer[_pos++];
-   retval = (uint)_buffer[_pos++] << 8;
-   retval = (uint)_buffer[_pos++] << 16;
-   retval = (uint)_buffer[_pos++] << 24;
+   //retval = (uint)_buffer[_pos++];
+   //retval = (uint)_buffer[_pos++] << 8;
+   //retval = (uint)_buffer[_pos++] << 16;
+   //retval = (uint)_buffer[_pos++] << 24;
    
-   printf("got %d", retval);
+   retval = (uint)_buffer[_pos];
+   _pos += sizeof(uint);
    
    return retval;
 }
@@ -150,14 +151,15 @@ bool NetPacket::SendString(const char* data)
    else
    {
       while ((_buffer[_size++] = *data++) != '\0');
-      _size--;
+      _buffer[_size] = '\0';
+      // _size--;
       retval = true;
    }
 
    return retval;
 }
 
-bool NetPacket::RecvString(char* buf, PacketSize size)
+bool NetPacket::RecvString(char* buf)
 {
    // DEBUG: passed string is not null
    assert(buf != (char *)0);
@@ -169,16 +171,21 @@ bool NetPacket::RecvString(char* buf, PacketSize size)
    uint i;
 
    // return false if it is asked to get more than it contains
-   if (size > _size - _pos) { }
-   else
-   {
-      // printf("size is: %d, pos is: %d, asking for: %d\n", _size, _pos, size);
-      // while ( _pos < _size && (buf[i++] = _buffer[_pos++]) != '\0' );
-      i = strlen((const char*)&_buffer[_pos]);
-      strcpy(buf, (const char*)&_buffer[_pos]);
-      _pos += i;
+   // if (size > _size - _pos) { }
+   // else
+   // {
+      //i = strlen((const char*)&_buffer[_pos]);
+      //strcpy(buf, (const char*)&_buffer[_pos]);
+      //_pos += i;
+      //buf[i] = '\0';
+      
+      int k = 0;
+      while ((buf[k++] = _buffer[_pos++]) != '\0' && _pos < _size);
+      buf[k++] = '\0';
+      
       retval = true;
-   }
+      
+   // }
 
    return retval;
 }

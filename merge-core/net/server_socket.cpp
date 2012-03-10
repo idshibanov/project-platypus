@@ -2,6 +2,7 @@
 // server_socket.cpp - implements ServerSocketArray and ServerSocketHandler classes
 
 #include "../core/defines.h"
+#include "../core/datatypes.h"
 #include "../server.h"
 #include "server_socket.h"
 #include <stdio.h>
@@ -88,24 +89,25 @@ bool ServerSocketHandler::RecvChatMsg(NetPacket* p)
    assert(p != (NetPacket *)0);
 
    bool retval = false;
-   char msg[p->_size+1];
+   char* msg = new char[p->_size+1];
 
    // check if client is actually authorized to send this packet
    if (0 /*_status != STATUS_SERVER_ACTIVE */) { }
    else
    {
-      if (p->RecvString(msg, p->_size - p->_sizeof_sizetype))
+      if (p->RecvString(msg))
       {
-         // printf("RecvString passed\n");
+         // got processed msg here
+         string tmp(msg);
+         _serv->broadcast( tmp.c_str(), _sockfd);
+         _serv->log( tmp.insert( 0, "Client " ) );
+         retval = true;
       } else
       {
-         // printf("RecvString returned false\n");
+         //printf("RecvString returned false\n");
       }
-
-      // got processed msg here
-      printf("Client says: %s", msg);
-      retval = true;
    }
+   delete [] msg;
    return retval;
 }
 
@@ -130,7 +132,7 @@ bool ServerSocketHandler::RecvClientLogin(NetPacket* p)
    if (_status != STATUS_SERVER_INACTIVE ) { }
    else
    {
-      p->RecvString(msg, p->_size - p->_sizeof_sizetype);
+      p->RecvString(msg);
       
       // TODO: login system
       

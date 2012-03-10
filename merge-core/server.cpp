@@ -1,10 +1,6 @@
 // Project Platypus
 // server.cpp - implements GameServer class & holds main()
 
-#include "./core/defines.h"
-#include "game.h"
-#include "server.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,6 +11,13 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
+
+#include <string>
+using namespace std;
+
+#include "./core/defines.h"
+#include "game.h"
+#include "server.h"
 
 GameServer::GameServer(int port)
 {
@@ -264,7 +267,7 @@ bool GameServer::parse_cmd()
    return true;
 }
 
-void GameServer::broadcast(const char* str, int fd)
+void GameServer::broadcast (const char* str, int fd)
 {
    for (int fd_cur = _min_client_fd; fd_cur < _max_client_fd; fd_cur++)
    {
@@ -273,8 +276,17 @@ void GameServer::broadcast(const char* str, int fd)
    
       if (FD_ISSET(fd_cur, &_readfds))
       {
-         _client_sock->GetClient(fd_cur)->SendChatMsg(str);
+         if (fd_cur != fd)
+            _client_sock->GetClient(fd_cur)->SendChatMsg(str);
       }
    }
+}
+
+void GameServer::log (string message)
+{
+   if (message.empty())
+      return;
+      
+   printf("%s\n", message.c_str());
 }
 
