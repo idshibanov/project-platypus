@@ -126,9 +126,10 @@ bool GameClient::run_select() {
               }
               break;
           }
-          clear();
+          clear();          
           drawScreen();
           refresh();
+         
         } else {
           ioctl( fd, FIONREAD, &nread );
 
@@ -140,8 +141,8 @@ bool GameClient::run_select() {
           }
           
           _serv_sh->RecvPacket();
-          
-          drawScreen();					
+          clear();
+          drawScreen();				
           refresh();
         }
       }
@@ -187,7 +188,7 @@ void GameClient::drawScreen() {
 
   _cw->draw(); 
 
-  drawChararacters();
+  drawCharacters();
 
   box( stdscr, '|', '-' );
 
@@ -198,7 +199,7 @@ void GameClient::drawScreen() {
   addch( ACS_RTEE ); 
 }
 
-void GameClient::drawChararacters() {
+void GameClient::drawCharacters() {
 
   //player
   move( _c->y, _c->x );

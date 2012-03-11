@@ -34,7 +34,7 @@ class GameClient
    void init_curses();
    void ncurses_temp_out(char* str);
    void addNewPlayer( int, int, int, char* );
-   void drawChararacters();
+   void drawCharacters();
    void drawScreen();
    Coords getPlayerPosition();
    void set_char(int x, int y);
