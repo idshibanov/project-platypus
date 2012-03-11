@@ -19,6 +19,8 @@ class GameClient
    fd_set _readfds, _testfds;
    int _port, _server_sock;
    
+   int _last_move;
+   
    ChatWindow* _cw;
    Character* _c;
    std::vector<Character> _players;
@@ -35,6 +37,8 @@ class GameClient
    void drawChararacters();
    void drawScreen();
    Coords getPlayerPosition();
+   void set_char(int x, int y);
+   void move_char();
 };
 
 #endif

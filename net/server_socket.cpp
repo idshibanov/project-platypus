@@ -2,15 +2,17 @@
 // server_socket.cpp - implements ServerSocketArray and ServerSocketHandler classes
 
 #include "../core/defines.h"
+#include "../game/game.h"
 #include "../server/server.h"
 #include "server_socket.h"
 #include <stdio.h>
 
-ServerSocketHandler::ServerSocketHandler (int socket, GameServer* serv)
+ServerSocketHandler::ServerSocketHandler (int socket, GameServer* serv, GameInstance* game)
                                           : SocketHandler(socket)
 {
    _status = STATUS_SERVER_INACTIVE;
    _serv = serv;
+   _game = game;
 }
 
 ServerSocketHandler::~ServerSocketHandler()
@@ -151,15 +153,32 @@ bool ServerSocketHandler::RecvClientMovement(NetPacket* p)
    
    // TODO: proper handling
 
-
    unsigned int mvm = p->RecvUint();
-   
-   printf("Client %d tries to move in direction %d\n", _sockfd, mvm);
+   if(_game->MovePlayer(_sockfd, mvm))
+   {
+      //printf("Client %d moved in direction %d\n", _sockfd, mvm);
+      SendAck(PACKET_SERVER_MOVE_RESPONSE, true);
+      _serv->broadcast_movement(_sockfd);
+      retval = true;
+   } else
+   {
+      SendAck(PACKET_SERVER_MOVE_RESPONSE, false);
+   }
 
-   //server->broadcast_movement(client, newpos);
-   SendAck(PACKET_SERVER_MOVE_RESPONSE, true);
+   return retval;
+}
 
-   retval = true;
+bool ServerSocketHandler::SendMapData(Point& coord)
+{
+   NetPacket* p = new NetPacket(PACKET_SERVER_MAPDATA);
+   bool retval = false;
+
+   if ( p->SendUint(coord.x) )
+      if ( p->SendUint(coord.y) )
+         retval = this->SendPacket(p);
+
+   // important
+   delete p;
 
    return retval;
 }
@@ -167,10 +186,11 @@ bool ServerSocketHandler::RecvClientMovement(NetPacket* p)
 
 // Implementation of ServerSocketArray class
 
-ServerSocketArray::ServerSocketArray(GameServer* serv)
+ServerSocketArray::ServerSocketArray(GameServer* serv, GameInstance* game)
 {
    _length = 0;
    _serv = serv;
+   _game = game;
 }
 
 ServerSocketArray::~ServerSocketArray()
@@ -190,12 +210,13 @@ bool ServerSocketArray::AddClient(int socket)
    if (socket < MIN_CLIENT_SOCKFD) { }
    else if ( _length < MAX_CLIENTS )
    {
-      _client_sock[_length] = new ServerSocketHandler(socket, _serv);
+      _client_sock[_length] = new ServerSocketHandler(socket, _serv, _game);
       _client_sock[_length]->SendAck(PACKET_SERVER_WELCOME);
       _length++;
       retval = true;
-   } else {
-      ServerSocketHandler tmp(socket, _serv);
+   } else 
+   {
+      ServerSocketHandler tmp(socket, _serv, _game);
       tmp.SendAck(PACKET_SERVER_FULL);
    }
 

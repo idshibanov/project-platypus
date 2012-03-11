@@ -41,6 +41,7 @@ class GameServer
    bool kill_client(int fd);
    bool parse_cmd();
    void broadcast(const char* str, int fd = -1);
+   void broadcast_movement(int fd);
    void log (string message);
 };
 
