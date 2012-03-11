@@ -17,6 +17,8 @@ class GameClient
    fd_set _readfds, _testfds;
    int _port, _server_sock;
    
+   int _last_move;
+   
    ChatWindow* _cw;
    Character* _c;
    ClientSocketHandler* _serv_sh;
@@ -29,6 +31,8 @@ class GameClient
    void init_curses();
    void ncurses_temp_out(char* str);
    void drawScreen( int, int );
+   void set_char(int x, int y);
+   void move_char();
 };
 
 #endif

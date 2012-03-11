@@ -33,7 +33,7 @@ enum NetPacketType
    PACKET_SERVER_JOIN_MAP,       // server sends game map
    PACKET_CLIENT_JOIN_READY,     // client ready to start
    
-   PACKET_SERVER_MAP_CHANGE,     // server says that something is changed
+   PACKET_SERVER_MAPDATA,     // server says that something is changed
    
    PACKET_CLIENT_MOVEMENT,       // client tries to move
    PACKET_SERVER_MOVE_RESPONSE,  // server allows/denies

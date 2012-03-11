@@ -8,6 +8,7 @@
 
 class GameServer;
 class NetPacket;
+struct Point;
 
 enum ServerStatus
 {
@@ -28,11 +29,12 @@ class ServerSocketHandler : public SocketHandler
    
    // client is associated with this server
    GameServer* _serv;
+   GameInstance* _game;
 
    // private constructor, so only ServerSocketArray
    // can create an instance of ServerSocketHandler
 
-   ServerSocketHandler(int socket, GameServer* serv);
+   ServerSocketHandler(int socket, GameServer* serv, GameInstance* game);
    
    public:
    
@@ -43,6 +45,7 @@ class ServerSocketHandler : public SocketHandler
    bool RecvChatMsg(NetPacket* p);
    bool RecvClientLogin(NetPacket* p);
    bool RecvClientMovement(NetPacket* p);
+   bool SendMapData(Point& coord);
    
    friend class ServerSocketArray;
 };
@@ -57,10 +60,11 @@ class ServerSocketArray
    
    // array is associated with this server
    GameServer* _serv;
+   GameInstance* _game;
 
    public:
    // default constructor of an empty array
-   ServerSocketArray(GameServer* serv);
+   ServerSocketArray(GameServer* serv, GameInstance* game);
 
    // deletes SocketHandlers
    ~ServerSocketArray();

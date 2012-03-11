@@ -27,8 +27,8 @@ GameServer::GameServer(int port)
    FD_ZERO(&_readfds);
    FD_ZERO(&_testfds);
 
-   _game = new GameInstance();
-   _client_sock = new ServerSocketArray(this);
+   _game = new GameInstance(this);
+   _client_sock = new ServerSocketArray(this, _game);
 }
 
 GameServer::~GameServer()
@@ -200,6 +200,8 @@ bool GameServer::accept_client()
       if ( client_fd + 1 > _max_client_fd )
          _max_client_fd = client_fd + 1;
       
+      _game->AddPlayer(client_fd);
+      
       // TODO: replace with proper log function
       printf("adding client on fd %d\n", client_fd);
          
@@ -230,6 +232,7 @@ bool GameServer::kill_client(int fd)
    
    if (FD_ISSET(fd, &_readfds))
    {
+      _game->RemovePlayer(fd);
       _client_sock->RemoveClient(fd);
       close(fd);
       FD_CLR(fd, &_readfds);
@@ -276,6 +279,22 @@ void GameServer::broadcast(const char* str, int fd)
       {
          if (fd_cur != fd)
             _client_sock->GetClient(fd_cur)->SendChatMsg(str);
+      }
+   }
+}
+
+void GameServer::broadcast_movement(int fd)
+{
+   Point mvm = _game->GetPlayer(fd);
+   for (int fd_cur = _min_client_fd; fd_cur < _max_client_fd; fd_cur++)
+   {
+      if (FD_ISSET(fd_cur, &_readfds))
+      {
+         if (fd_cur != fd)
+         {
+            _client_sock->GetClient(fd_cur)->SendMapData(mvm);
+            printf("Broadcast %d %d\n", mvm.x, mvm.y);
+         }
       }
    }
 }

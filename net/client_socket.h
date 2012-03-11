@@ -29,11 +29,12 @@ class ClientSocketHandler : public SocketHandler
    
    ClientSocketHandler(int socket, GameClient* gc);   
    virtual ~ClientSocketHandler();
-   bool HandlePacket(NetPacket *p);
+   bool HandlePacket(NetPacket* p);
    bool SendChatMsg(const char* msg);
    bool RecvChatMsg(NetPacket* p);
    bool RecvAck(NetPacket* p);
    bool SendMovement(unsigned int side);
+   bool RecvMapData(NetPacket* p);
 };
 
 #endif /* PLA_NET_CLIENT_SOCKET_H */

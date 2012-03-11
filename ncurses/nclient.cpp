@@ -26,6 +26,7 @@ GameClient::GameClient(int port):
   _c( new Character() ),
   _serv_sh( (ClientSocketHandler* )0 )
 {
+   _last_move = 0;
    net_connect();
 }
 
@@ -83,27 +84,31 @@ bool GameClient::run_select()
           switch ( ch ) {
             case KEY_DOWN:
               _serv_sh->SendMovement(2);
-              if ( _c->y < ( LINES - CHATSIZE ) - 3 ) {
-                _c->y++;
-              }
+              _last_move = 2;
+              //if ( _c->y < ( LINES - CHATSIZE ) - 3 ) {
+              //  _c->y++;
+              //}
               break;
             case KEY_UP:
               _serv_sh->SendMovement(8);
-              if ( _c->y > 1 ) {
-                _c->y--;
-              }
+              _last_move = 8;
+              //if ( _c->y > 1 ) {
+              //  _c->y--;
+              //}
               break;
             case KEY_LEFT:
               _serv_sh->SendMovement(4);
-              if ( _c->x > 2 ) {
-                _c->x--;
-              }
+              _last_move = 4;
+              //if ( _c->x > 2 ) {
+              //  _c->x--;
+              //}
               break;
             case KEY_RIGHT:
               _serv_sh->SendMovement(6);
-              if ( _c->x < COLS-2) {
-                _c->x++;
-              }
+              _last_move = 6;
+              //if ( _c->x < COLS-2) {
+              //  _c->x++;
+              //}
               break;
             case 0x63:
             case 0x43:
@@ -202,6 +207,34 @@ void GameClient::drawScreen( int x, int y ) {
 void GameClient::ncurses_temp_out(char* str)
 {
    _cw->addMessage( string(str) );
+}
+
+void GameClient::set_char(int x, int y)
+{
+
+}
+
+void GameClient::move_char()
+{
+   if (!_last_move)
+      return;
+   
+   switch(_last_move)
+   {
+   case 2:
+      _c->y++;
+      break;
+   case 4:
+      _c->x--;
+      break;
+   case 6:
+      _c->x++;
+      break;
+   case 8:
+      _c->y--;
+      break;
+   }
+   _last_move = 0;
 }
 
 

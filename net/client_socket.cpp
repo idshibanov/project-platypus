@@ -41,7 +41,11 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
       case PACKET_SERVER_WELCOME:
          if (_status == STATUS_CLIENT_INACTIVE )
          {
-            _status = STATUS_CLIENT_NOT_AUTH;
+            // temp replace
+            //_status = STATUS_CLIENT_NOT_AUTH;
+            
+            _status = STATUS_CLIENT_ACTIVE;
+            
             // TODO: ask user to send his username
             retval = true;
          }
@@ -63,14 +67,14 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
       case PACKET_SERVER_JOIN_MAP:
          if (_status == STATUS_CLIENT_MAP )
          {
-            //retval = this->RecvMapData();
+            //retval = this->RecvMapStruct();
          }
          break;
-      case PACKET_SERVER_MAP_CHANGE:
+      case PACKET_SERVER_MAPDATA:
          if (_status == STATUS_CLIENT_ACTIVE )
          {
             // EVENT: something happend on the map
-            //retval = this->RecvMapChange();
+            retval = this->RecvMapData(p);
          }
          break;
       case PACKET_SERVER_MOVE_RESPONSE:
@@ -80,7 +84,8 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
             {
                // EVENT: recieved true on request
                // TODO: move character
-               _gc->ncurses_temp_out((char*)"Move Resp got");
+               _gc->move_char();
+               _gc->ncurses_temp_out((char*)"Can move");
             }
             retval = true;
          }
@@ -156,7 +161,7 @@ bool ClientSocketHandler::RecvAck(NetPacket* p)
    // DEBUG: it is not a null pointer
    assert(p != (NetPacket *)0);
 
-   bool retval = false;
+   bool retval = p->RecvBool();
 
    return retval;
 }
@@ -174,6 +179,21 @@ bool ClientSocketHandler::SendMovement(unsigned int side)
 
    // important
    delete p;
+
+   return retval;
+}
+
+bool ClientSocketHandler::RecvMapData(NetPacket* p)
+{
+   // DEBUG: it is not a null pointer
+   assert(p != (NetPacket *)0);
+
+   bool retval = false;
+   
+   int x = p->RecvUint();
+   int y = p->RecvUint();
+   
+   _gc->set_char(x, y);
 
    return retval;
 }
