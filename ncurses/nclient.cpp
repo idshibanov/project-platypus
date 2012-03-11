@@ -224,6 +224,12 @@ void GameClient::addNewPlayer( int id, int x, int y, char* name) {
   _players.push_back( c );
 }
 
+Coords GameClient::getPlayerPosition() {
+  Coords pc;
+  pc.x = _c->x;
+  pc.y = _c->y;
+  return pc;
+}
 
 int main() {
    GameClient gc;

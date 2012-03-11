@@ -10,6 +10,7 @@
 
 class ClientSocketHandler;
 struct Character;
+struct Coords;
 class ChatWindow;
 
 class GameClient
@@ -33,6 +34,7 @@ class GameClient
    void addNewPlayer( int, int, int, char* );
    void drawChararacters();
    void drawScreen();
+   Coords getPlayerPosition();
 };
 
 #endif

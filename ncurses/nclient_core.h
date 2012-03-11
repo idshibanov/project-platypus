@@ -7,6 +7,10 @@ struct Character {
 	char *name;
 };
 
+struct Coords {
+  int x, y;
+};
+
 class Chatmsg {
   public:
     string msg;
