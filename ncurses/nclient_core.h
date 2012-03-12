@@ -3,12 +3,12 @@
 #define PLA_NCLIENT_CORE_H
 
 struct Character {
-	int x, y, id;
+	unsigned int x, y, id;
 	char *name;
 };
 
 struct Coords {
-  int x, y;
+  unsigned int x, y;
 };
 
 class Chatmsg {
