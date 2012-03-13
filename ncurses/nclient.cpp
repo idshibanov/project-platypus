@@ -30,16 +30,14 @@ GameClient::GameClient(int port):
    net_connect();
 }
 
-GameClient::~GameClient()
-{
+GameClient::~GameClient() {
    delete _c;
    delete _cw;
    if (_serv_sh)
       delete _serv_sh;
 }
 
-bool GameClient::net_connect()
-{
+bool GameClient::net_connect() {
    struct addrinfo* ailist;
    getaddrinfo(SERV_IP, NULL, NULL, &ailist);
    struct sockaddr_in* server;
@@ -68,8 +66,7 @@ bool GameClient::net_connect()
    return true;
 }
 
-bool GameClient::run_select()
-{
+bool GameClient::run_select() {
   int fd, nread, ch;
   char buffer[1024];
 
@@ -129,10 +126,10 @@ bool GameClient::run_select()
               }
               break;
           }
-          clear();
-          _cw->draw();
-          drawScreen(_c->x, _c->y);
+          clear();          
+          drawScreen();
           refresh();
+         
         } else {
           ioctl( fd, FIONREAD, &nread );
 
@@ -144,8 +141,8 @@ bool GameClient::run_select()
           }
           
           _serv_sh->RecvPacket();
-          
-          drawScreen(_c->x, _c->y);					
+          clear();
+          drawScreen();				
           refresh();
         }
       }
@@ -172,7 +169,7 @@ void GameClient::init_curses()
    
    // initially from main()
    _c->x = _c->y = 2;
-   drawScreen(_c->x, _c->y);
+   drawScreen();
    _cw->draw();
    mvprintw( LINES - 2, 1, "Enter User Name: " );
    curs_set(1);
@@ -182,16 +179,16 @@ void GameClient::init_curses()
    noecho();
    _username = string( buffer );
    clear();
-   drawScreen(_c->x, _c->y);
+   drawScreen();
    _cw->draw();  
    refresh();
 }
 
-void GameClient::drawScreen( int x, int y ) {
-  if( !x || !y )
-    return;
-  move( y, x );
-  addch( 'X' );
+void GameClient::drawScreen() {
+
+  _cw->draw(); 
+
+  drawCharacters();
 
   box( stdscr, '|', '-' );
 
@@ -199,19 +196,62 @@ void GameClient::drawScreen( int x, int y ) {
   addch( ACS_LTEE );
 
   move( LINES - CHATSIZE - 2, COLS -1 );
-  addch( ACS_RTEE );
-
-  _cw->draw();  
+  addch( ACS_RTEE ); 
 }
 
-void GameClient::ncurses_temp_out(char* str)
-{
-   _cw->addMessage( string(str) );
+void GameClient::drawCharacters() {
+
+  //player
+  move( _c->y, _c->x );
+  addch( 'X' );
+
+  if ( _players.size() > 0 ) {
+    //other players
+    vector<Character>::iterator vi;
+    for ( vi = _players.begin(); vi < _players.end(); vi++ ) {
+      move( vi->y, vi->x );
+      addch( 'X' );
+    }
+  }
+  
 }
 
-void GameClient::set_char(int x, int y)
-{
+void GameClient::ncurses_temp_out(char* str) {
+  _cw->addMessage( string(str) );
+}
 
+void GameClient::addNewPlayer( int id, int x, int y, char* name) {
+  Character c;
+  c.x = x;
+  c.y = y;
+  c.id = id;
+  c.name = name;
+
+  _players.push_back( c );
+}
+
+Coords GameClient::getPlayerPosition() {
+  Coords pc;
+  pc.x = _c->x;
+  pc.y = _c->y;
+  return pc;
+}
+
+void GameClient::set_char(int id, unsigned int x, unsigned int y)
+{
+   bool found = false;
+   vector<Character>::iterator vi;
+   for ( vi = _players.begin(); vi < _players.end(); vi++ ) {
+      if( vi->id == id) {
+         vi->x = x;
+         vi->y = y;
+         found = true;
+         break;
+      }
+   }
+    
+   if(!found)
+      addNewPlayer(id, x, y, (char*) "");
 }
 
 void GameClient::move_char()

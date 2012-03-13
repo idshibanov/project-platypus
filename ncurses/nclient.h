@@ -2,6 +2,7 @@
 #ifndef PLA_NCLIENT_H
 #define PLA_NCLIENT_H
 
+#include <vector>
 #include "../core/defines.h"
 
 #define PLA_TEMP_NCURSES_OUTPUT
@@ -9,6 +10,7 @@
 
 class ClientSocketHandler;
 struct Character;
+struct Coords;
 class ChatWindow;
 
 class GameClient
@@ -21,6 +23,7 @@ class GameClient
    
    ChatWindow* _cw;
    Character* _c;
+   std::vector<Character> _players;
    ClientSocketHandler* _serv_sh;
    
    public:
@@ -30,8 +33,11 @@ class GameClient
    bool run_select();
    void init_curses();
    void ncurses_temp_out(char* str);
-   void drawScreen( int, int );
-   void set_char(int x, int y);
+   void addNewPlayer( int, int, int, char* );
+   void drawCharacters();
+   void drawScreen();
+   Coords getPlayerPosition();
+   void set_char(int id, unsigned int x, unsigned int y);
    void move_char();
 };
 

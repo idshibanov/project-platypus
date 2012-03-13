@@ -83,9 +83,7 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
             if (p->RecvBool())
             {
                // EVENT: recieved true on request
-               // TODO: move character
                _gc->move_char();
-               _gc->ncurses_temp_out((char*)"Can move");
             }
             retval = true;
          }
@@ -190,10 +188,11 @@ bool ClientSocketHandler::RecvMapData(NetPacket* p)
 
    bool retval = false;
    
-   int x = p->RecvUint();
-   int y = p->RecvUint();
+   unsigned int id = p->RecvUint();
+   unsigned int x = p->RecvUint();
+   unsigned int y = p->RecvUint();
    
-   _gc->set_char(x, y);
+   _gc->set_char(id, x, y);
 
    return retval;
 }

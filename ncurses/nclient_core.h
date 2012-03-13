@@ -3,9 +3,13 @@
 #define PLA_NCLIENT_CORE_H
 
 struct Character {
-	int x, y;
+	unsigned int x, y, id;
 	char *name;
 };
+
+//struct Coords {
+//  unsigned int x, y;
+//};
 
 class Chatmsg {
   public:
@@ -16,7 +20,7 @@ class Chatmsg {
 };
 
 Chatmsg::Chatmsg( string message ):
-  msg( message ),
+  msg( message.substr( 0, COLS - 3 ) ),
   next( NULL ),
   prev( NULL )
 {};
@@ -84,7 +88,7 @@ bool ChatWindow::addMessage( string message ) {
 };
 
 void ChatWindow::draw() {
-  int pos = LINES - 4;    
+  int pos = LINES - 4;
   move( _ypos, 1);
   hline( '-', COLS-2 );
  	move( LINES - 3, 1);

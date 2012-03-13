@@ -45,7 +45,7 @@ class ServerSocketHandler : public SocketHandler
    bool RecvChatMsg(NetPacket* p);
    bool RecvClientLogin(NetPacket* p);
    bool RecvClientMovement(NetPacket* p);
-   bool SendMapData(Point& coord);
+   bool SendMapData(int sockfd, Coords& coord);
    
    friend class ServerSocketArray;
 };

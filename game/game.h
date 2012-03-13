@@ -10,9 +10,9 @@
 
 class GameServer;
 
-struct Point {
-   int x, y;
-   Point(int fst, int snd)
+struct Coords {
+   unsigned int x, y;
+   Coords(unsigned int fst = 2, unsigned int snd = 2)
    {
       x = fst;
       y = snd;
@@ -131,12 +131,12 @@ class GameInstance
       return retval;
    }
    
-   Point GetPlayer(int sockfd)
+   Coords GetPlayer(int sockfd)
    {
       for(int i = 0; i < _length; i++)
       {
          if(_players[i]->_sockfd == sockfd)
-            return Point(_players[i]->_x, _players[i]->_y);
+            return Coords(_players[i]->_x, _players[i]->_y);
       }
    }
 };
