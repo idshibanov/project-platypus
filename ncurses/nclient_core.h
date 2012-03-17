@@ -42,7 +42,8 @@ ChatWindow::ChatWindow( int ypos, int vl ):
     _lastmsg( NULL ),
     _messages( 0 ) {};
 
-ChatWindow::~ChatWindow() {
+ChatWindow::~ChatWindow()
+{
     Chatmsg *temp;
     while ( _lastmsg ) {
         temp = _lastmsg->next;
@@ -50,7 +51,8 @@ ChatWindow::~ChatWindow() {
     }
 };
 
-void ChatWindow::trim(){
+void ChatWindow::trim()
+{
     int num = 0;
     Chatmsg *temp = _lastmsg,
             *del;
@@ -63,7 +65,8 @@ void ChatWindow::trim(){
     delete del;	
 }
 
-bool ChatWindow::addMessage( string message ) {
+bool ChatWindow::addMessage( string message )
+{
     if( message.empty() )
         return false;
 
@@ -83,7 +86,8 @@ bool ChatWindow::addMessage( string message ) {
     return true;
 };
 
-void ChatWindow::draw() {
+void ChatWindow::draw()
+{
     int pos = LINES - 4;
     move( _ypos, 1);
     hline( '-', COLS-2 );

@@ -13,8 +13,7 @@ struct Character;
 struct Coords;
 class ChatWindow;
 
-class GameClient
-{
+class GameClient {
     std::string _message, _username;   
     fd_set _readfds, _testfds;
     int _port, _server_sock;

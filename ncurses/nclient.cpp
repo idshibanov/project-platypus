@@ -43,7 +43,8 @@ void GameClient::enter_menu()
 
 } 
 
-bool GameClient::net_connect() {
+bool GameClient::net_connect()
+{
     struct addrinfo* ailist;
     getaddrinfo(SERV_IP, NULL, NULL, &ailist);
     struct sockaddr_in* server;
@@ -72,7 +73,8 @@ bool GameClient::net_connect() {
     return true;
 }
 
-bool GameClient::run_select() {
+bool GameClient::run_select()
+{
     int fd, nread, ch;
     char buffer[1024];
 
@@ -190,7 +192,8 @@ void GameClient::init_curses()
     refresh();
 }
 
-void GameClient::drawScreen() {
+void GameClient::drawScreen()
+{
 
     _cw->draw(); 
 
@@ -205,7 +208,8 @@ void GameClient::drawScreen() {
     addch( ACS_RTEE ); 
 }
 
-void GameClient::drawCharacters() {
+void GameClient::drawCharacters()
+{
 
     //player
     move( _c->y, _c->x );
@@ -222,11 +226,13 @@ void GameClient::drawCharacters() {
   
 }
 
-void GameClient::ncurses_temp_out(char* str) {
+void GameClient::ncurses_temp_out(char* str)
+{
     _cw->addMessage( string(str) );
 }
 
-void GameClient::addNewPlayer( int id, int x, int y, char* name) {
+void GameClient::addNewPlayer( int id, int x, int y, char* name)
+{
     Character c;
     c.x = x;
     c.y = y;
@@ -236,7 +242,8 @@ void GameClient::addNewPlayer( int id, int x, int y, char* name) {
     _players.push_back( c );
 }
 
-Coords GameClient::getPlayerPosition() {
+Coords GameClient::getPlayerPosition()
+{
     Coords pc;
     pc.x = _c->x;
     pc.y = _c->y;
@@ -283,12 +290,14 @@ void GameClient::move_char()
 }
 
 
-int main() {
+int main()
+{
     GameClient gc;
     return 0;
 }
 
-int die() {
+int die()
+{
     signal(SIGINT,SIG_IGN);
     mvcur(0,COLS-1,LINES-1,0);
     endwin();
