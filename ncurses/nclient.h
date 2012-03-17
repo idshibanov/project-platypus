@@ -15,31 +15,32 @@ class ChatWindow;
 
 class GameClient
 {
-   std::string _message, _username;   
-   fd_set _readfds, _testfds;
-   int _port, _server_sock;
-   
-   int _last_move;
-   
-   ChatWindow* _cw;
-   Character* _c;
-   std::vector<Character> _players;
-   ClientSocketHandler* _serv_sh;
-   
-   public:
-   GameClient(int port = SERV_PORT);
-   virtual ~GameClient();
-   bool net_connect();
-   bool run_select();
-   void init_curses();
-   void ncurses_temp_out(char* str);
-   void addNewPlayer( int, int, int, char* );
-   void drawCharacters();
-   void drawScreen();
-   Coords getPlayerPosition();
+    std::string _message, _username;   
+    fd_set _readfds, _testfds;
+    int _port, _server_sock;
 
-   void set_char(int id, unsigned int x, unsigned int y);
-   void move_char();
+    int _last_move;
+
+    ChatWindow* _cw;
+    Character* _c;
+    std::vector<Character> _players;
+    ClientSocketHandler* _serv_sh;
+
+    public:
+    GameClient(int port = SERV_PORT);
+    virtual ~GameClient();
+    void enter_menu();
+    bool net_connect();
+    bool run_select();
+    void init_curses();
+    void ncurses_temp_out(char* str);
+    void addNewPlayer( int, int, int, char* );
+    void drawCharacters();
+    void drawScreen();
+    Coords getPlayerPosition();
+
+    void set_char(int id, unsigned int x, unsigned int y);
+    void move_char();
 };
 
 #endif
