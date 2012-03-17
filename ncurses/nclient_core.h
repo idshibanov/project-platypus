@@ -7,9 +7,9 @@ struct Character {
 	char *name;
 };
 
-struct Coords {
-  unsigned int x, y;
-};
+//struct Coords {
+//  unsigned int x, y;
+//};
 
 class Chatmsg {
   public:

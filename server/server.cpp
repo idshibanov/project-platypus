@@ -285,14 +285,14 @@ void GameServer::broadcast(const char* str, int fd)
 
 void GameServer::broadcast_movement(int fd)
 {
-   Point mvm = _game->GetPlayer(fd);
+   Coords mvm = _game->GetPlayer(fd);
    for (int fd_cur = _min_client_fd; fd_cur < _max_client_fd; fd_cur++)
    {
       if (FD_ISSET(fd_cur, &_readfds))
       {
          if (fd_cur != fd)
          {
-            _client_sock->GetClient(fd_cur)->SendMapData(mvm);
+            _client_sock->GetClient(fd_cur)->SendMapData(fd, mvm);
             printf("Broadcast %d %d\n", mvm.x, mvm.y);
          }
       }

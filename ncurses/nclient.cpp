@@ -237,9 +237,21 @@ Coords GameClient::getPlayerPosition() {
   return pc;
 }
 
-void GameClient::set_char(int x, int y)
+void GameClient::set_char(int id, unsigned int x, unsigned int y)
 {
-
+   bool found = false;
+   vector<Character>::iterator vi;
+   for ( vi = _players.begin(); vi < _players.end(); vi++ ) {
+      if( vi->id == id) {
+         vi->x = x;
+         vi->y = y;
+         found = true;
+         break;
+      }
+   }
+    
+   if(!found)
+      addNewPlayer(id, x, y, (char*) "");
 }
 
 void GameClient::move_char()

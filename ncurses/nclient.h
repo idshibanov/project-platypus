@@ -37,7 +37,8 @@ class GameClient
    void drawCharacters();
    void drawScreen();
    Coords getPlayerPosition();
-   void set_char(int x, int y);
+
+   void set_char(int id, unsigned int x, unsigned int y);
    void move_char();
 };
 

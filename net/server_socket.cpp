@@ -168,14 +168,15 @@ bool ServerSocketHandler::RecvClientMovement(NetPacket* p)
    return retval;
 }
 
-bool ServerSocketHandler::SendMapData(Point& coord)
+bool ServerSocketHandler::SendMapData(int sockfd, Coords& coord)
 {
    NetPacket* p = new NetPacket(PACKET_SERVER_MAPDATA);
    bool retval = false;
-
-   if ( p->SendUint(coord.x) )
-      if ( p->SendUint(coord.y) )
-         retval = this->SendPacket(p);
+   
+   if ( p->SendUint(sockfd) )
+      if ( p->SendUint(coord.x) )
+         if ( p->SendUint(coord.y) )
+            retval = this->SendPacket(p);
 
    // important
    delete p;
