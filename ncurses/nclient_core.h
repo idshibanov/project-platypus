@@ -2,9 +2,11 @@
 #ifndef PLA_NCLIENT_CORE_H
 #define PLA_NCLIENT_CORE_H
 
-struct Character {
-	  unsigned int x, y, id;
-	  char *name;
+class Character {
+    public:
+        Character( string n ): name( n ) {};
+	    unsigned int x, y, id;
+	    string name;
 };
 
 class Chatmsg {

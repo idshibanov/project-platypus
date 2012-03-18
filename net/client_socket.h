@@ -6,7 +6,7 @@
 
 #include "socket.h"
 
-class GameClient;
+class GameScreen;
 class NetPacket;
 
 enum ClientStatus
@@ -23,11 +23,11 @@ class ClientSocketHandler : public SocketHandler
 {
    // status of a connection for protection reasons
    ClientStatus _status;
-   GameClient* _gc;
+   GameScreen* _gs;
   
    public:
    
-   ClientSocketHandler(int socket, GameClient* gc);   
+   ClientSocketHandler(int socket, GameScreen* gs);   
    virtual ~ClientSocketHandler();
    bool HandlePacket(NetPacket* p);
    bool SendChatMsg(const char* msg);

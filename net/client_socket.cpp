@@ -5,13 +5,13 @@
 #include <string>
 #include <sys/select.h>
 
-#include "../ncurses/nclient.h"
+#include "../ncurses/game/GameScreen.h"
 #include "client_socket.h"
 
-ClientSocketHandler::ClientSocketHandler(int socket, GameClient* gc) : SocketHandler(socket)
+ClientSocketHandler::ClientSocketHandler(int socket, GameScreen* gs) : SocketHandler(socket)
 {
    _status = STATUS_CLIENT_INACTIVE;
-   _gc = gc;
+   _gs = gs;
 }
 
 ClientSocketHandler::~ClientSocketHandler()
@@ -83,7 +83,7 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
             if (p->RecvBool())
             {
                // EVENT: recieved true on request
-               _gc->move_char();
+               _gs->move_char();
             }
             retval = true;
          }
@@ -136,7 +136,7 @@ bool ClientSocketHandler::RecvChatMsg(NetPacket* p)
          
          // got processed msg here
          #ifdef PLA_TEMP_NCURSES_OUTPUT
-         _gc->ncurses_temp_out(msg);
+         _gs->ncurses_temp_out(msg);
          #endif
          #ifndef PLA_TEMP_NCURSES_OUTPUT
          printf("Server says: %s", msg);
@@ -192,7 +192,7 @@ bool ClientSocketHandler::RecvMapData(NetPacket* p)
    unsigned int x = p->RecvUint();
    unsigned int y = p->RecvUint();
    
-   _gc->set_char(id, x, y);
+   _gs->set_char(id, x, y);
 
    return retval;
 }

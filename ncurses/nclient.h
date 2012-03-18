@@ -2,44 +2,66 @@
 #ifndef PLA_NCLIENT_H
 #define PLA_NCLIENT_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <string>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <curses.h>
+#include <signal.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+using namespace std;
+
 #include <vector>
 #include "../core/defines.h"
 
-#define PLA_TEMP_NCURSES_OUTPUT
-#define CHATSIZE 15
+enum MENU_TYPE {
+    MAIN_MENU,
+    LOGIN_MENU,
+    REGISTER_MENU,
+    SETTINGS_MENU,
+    SCORES_MENU,
+    JOIN_GAME
+};
 
-class ClientSocketHandler;
-struct Character;
-struct Coords;
-class ChatWindow;
+class GameScreen;
+class Menu;
 
 class GameClient {
-    std::string _message, _username;   
-    fd_set _readfds, _testfds;
-    int _port, _server_sock;
+    private:
 
-    int _last_move;
+        Menu* _menu;
 
-    ChatWindow* _cw;
-    Character* _c;
-    std::vector<Character> _players;
-    ClientSocketHandler* _serv_sh;
+        GameScreen* _gs;
+        
+        MENU_TYPE _current_menu;
+
+        bool _exit_flag;
 
     public:
-    GameClient(int port = SERV_PORT);
-    virtual ~GameClient();
-    void enter_menu();
-    bool net_connect();
-    bool run_select();
-    void init_curses();
-    void ncurses_temp_out(char* str);
-    void addNewPlayer( int, int, int, char* );
-    void drawCharacters();
-    void drawScreen();
-    Coords getPlayerPosition();
+        // Constructor, De-Constructor
+        GameClient();
+        virtual ~GameClient();
 
-    void set_char(int id, unsigned int x, unsigned int y);
-    void move_char();
+        // Initialize ncurses
+        void init_curses();
+
+        // Menu related members
+        void enter_menus();
+
+        void signal_exit()
+        {
+            _exit_flag = true; 
+        };
+
+
 };
 
 #endif
