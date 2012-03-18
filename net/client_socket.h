@@ -11,12 +11,12 @@ class NetPacket;
 
 enum ClientStatus
 {
-   STATUS_CLIENT_INACTIVE,        // not connected
-   STATUS_CLIENT_NOT_AUTH,        // just connected
-   STATUS_CLIENT_AUTH,            // succesfully logged in
-   STATUS_CLIENT_MAP,             // we are downloading game map
-   STATUS_CLIENT_ACTIVE,          // we are playing
-   STATUS_CLIENT_END              // always at the end
+    STATUS_CLIENT_INACTIVE,        // not connected
+    STATUS_CLIENT_NOT_AUTH,        // just connected
+    STATUS_CLIENT_AUTH,            // succesfully logged in
+    STATUS_CLIENT_MAP,             // we are downloading game map
+    STATUS_CLIENT_ACTIVE,          // we are playing
+    STATUS_CLIENT_END              // always at the end
 };
 
 class ClientSocketHandler : public SocketHandler

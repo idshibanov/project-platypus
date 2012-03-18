@@ -12,84 +12,84 @@ struct Point;
 
 enum ServerStatus
 {
-   STATUS_SERVER_INACTIVE,        // client is just connected and not authorized
-   STATUS_SERVER_AUTHORIZED,      // client is authorized
-   STATUS_SERVER_JOINING,         // client tries to join
-   STATUS_SERVER_ACTIVE,          // client is active in the game
-   STATUS_SERVER_END              // always at the end
+    STATUS_SERVER_INACTIVE,        // client is just connected and not authorized
+    STATUS_SERVER_AUTHORIZED,      // client is authorized
+    STATUS_SERVER_JOINING,         // client tries to join
+    STATUS_SERVER_ACTIVE,          // client is active in the game
+    STATUS_SERVER_END              // always at the end
 };
 
 class ServerSocketHandler : public SocketHandler
 {
-   // network address of a client (for admin reasons)
-   // sockaddr_in _net_addr;
+    // network address of a client (for admin reasons)
+    // sockaddr_in _net_addr;
 
-   // status of a client for protection reasons
-   ServerStatus _status;
-   
-   // client is associated with this server
-   GameServer* _serv;
-   GameInstance* _game;
+    // status of a client for protection reasons
+    ServerStatus _status;
 
-   // private constructor, so only ServerSocketArray
-   // can create an instance of ServerSocketHandler
+    // client is associated with this server
+    GameServer* _serv;
+    GameInstance* _game;
 
-   ServerSocketHandler(int socket, GameServer* serv, GameInstance* game);
-   
-   public:
-   
-   virtual ~ServerSocketHandler();   
-   bool HandlePacket(NetPacket *p);
-   bool RecvAck(NetPacket* p);
-   bool SendChatMsg(const char* msg);
-   bool RecvChatMsg(NetPacket* p);
-   bool RecvClientLogin(NetPacket* p);
-   bool RecvClientMovement(NetPacket* p);
-   bool SendMapData(int sockfd, Coords& coord);
-   
-   friend class ServerSocketArray;
+    // private constructor, so only ServerSocketArray
+    // can create an instance of ServerSocketHandler
+
+    ServerSocketHandler(int socket, GameServer* serv, GameInstance* game);
+
+public:
+
+    virtual ~ServerSocketHandler();   
+    bool HandlePacket(NetPacket *p);
+    bool RecvAck(NetPacket* p);
+    bool SendChatMsg(const char* msg);
+    bool RecvChatMsg(NetPacket* p);
+    bool RecvClientLogin(NetPacket* p);
+    bool RecvClientMovement(NetPacket* p);
+    bool SendMapData(int sockfd, Coords& coord);
+
+    friend class ServerSocketArray;
 };
 
 class ServerSocketArray
 {
-   // array of ptrs to DYNAMICALLY allocated SocketHandlers
-   ServerSocketHandler* _client_sock[MAX_CLIENTS];
+    // array of ptrs to DYNAMICALLY allocated SocketHandlers
+    ServerSocketHandler* _client_sock[MAX_CLIENTS];
 
-   // length of an array
-   uint _length;
-   
-   // array is associated with this server
-   GameServer* _serv;
-   GameInstance* _game;
+    // length of an array
+    uint _length;
 
-   public:
-   // default constructor of an empty array
-   ServerSocketArray(GameServer* serv, GameInstance* game);
+    // array is associated with this server
+    GameServer* _serv;
+    GameInstance* _game;
 
-   // deletes SocketHandlers
-   ~ServerSocketArray();
+public:
+    // default constructor of an empty array
+    ServerSocketArray(GameServer* serv, GameInstance* game);
 
-   // add a client to an array
-   bool AddClient(int socket);
+    // deletes SocketHandlers
+    ~ServerSocketArray();
 
-   // remove a client from an array, automatically moves others
-   bool RemoveClient(int socket);
-   
-   // wipe everything
-   void ClearList();
+    // add a client to an array
+    bool AddClient(int socket);
 
-   // returns current number of clients in the array
-   int Length();
-   
-   // get a client pointer from an array
-   ServerSocketHandler* GetClient (const int sockfd);
+    // remove a client from an array, automatically moves others
+    bool RemoveClient(int socket);
 
-   // we can cast a class to an int
-   // returns current number of clients in the array
-   operator int();
+    // wipe everything
+    void ClearList();
 
-   // operator [] to work with this class as an simple array
-   ServerSocketHandler* operator [] (const int sockfd);
+    // returns current number of clients in the array
+    int Length();
+
+    // get a client pointer from an array
+    ServerSocketHandler* GetClient (const int sockfd);
+
+    // we can cast a class to an int
+    // returns current number of clients in the array
+    operator int();
+
+    // operator [] to work with this class as an simple array
+    ServerSocketHandler* operator [] (const int sockfd);
 };
 
 
