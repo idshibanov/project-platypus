@@ -3,7 +3,7 @@
 #include "MainMenu.h"
 
 
-MainMenu::MainMenu( GameClient* gc ): Menu( gc, 3 )
+MainMenu::MainMenu( GameClient* gc ): Menu( gc, 4 )
 {};
 void MainMenu::draw()
 {
@@ -22,14 +22,19 @@ void MainMenu::draw()
         mvaddstr( LINES - 7, COLS/2, "REGISTER" );
 
     if ( _selected == 2 )
-        mvaddstr( LINES - 6, COLS/2 - 2, "> SETTINGS <" );
+        mvaddstr( LINES - 6, COLS/2 - 2, "> HIGH SCORES <" );
     else
-        mvaddstr( LINES - 6, COLS/2, "SETTINGS" );
+        mvaddstr( LINES - 6, COLS/2, "HIGH SCORES" );
 
     if ( _selected == 3 )
-        mvaddstr( LINES - 5, COLS/2 - 2, "> EXIT <" );
+        mvaddstr( LINES - 5, COLS/2 - 2, "> SETTINGS <" );
     else
-        mvaddstr( LINES - 5, COLS/2, "EXIT" );
+        mvaddstr( LINES - 5, COLS/2, "SETTINGS" );
+
+    if ( _selected == 4 )
+        mvaddstr( LINES - 4, COLS/2 - 2, "> EXIT <" );
+    else
+        mvaddstr( LINES - 4, COLS/2, "EXIT" );
     refresh();
 };
 
@@ -39,10 +44,12 @@ Menu* MainMenu::execute()
     if ( _selected == 0 ) {
         return new LoginMenu( _gc );
     } else if ( _selected == 1 ) {
-        return ( Menu* )new RegisterMenu( _gc );
+        return new RegisterMenu( _gc );
     } else if ( _selected == 2 ) {
-        return ( Menu* )new SettingsMenu( _gc );
+        return new ScoresMenu( _gc );
     } else if ( _selected == 3 ) {
+        return new SettingsMenu( _gc );
+    } else if ( _selected == 4 ) {
         _gc->signal_exit();
         return (Menu*)0;
     }

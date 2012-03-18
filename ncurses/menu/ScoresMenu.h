@@ -3,19 +3,15 @@
 #define PLA_SCORESMENU_H
 
 #include "Menu.h"
+#include "MainMenu.h"
 
 class ScoresMenu: public Menu {
     private:
-
     public:
-        ScoresMenu( GameClient* gc ): Menu( gc )
-        {
+        ScoresMenu( GameClient* gc );
+        void draw();
 
-        };
-        void draw()
-        {
-             box( stdscr, 'X', 'X' );
-        };
+        Menu* execute();
 };
 
 #endif

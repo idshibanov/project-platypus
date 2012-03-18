@@ -6,6 +6,7 @@
 
 #include "LoginMenu.h"
 #include "RegisterMenu.h"
+#include "ScoresMenu.h"
 #include "SettingsMenu.h"
 #include "../nclient.h"
 
