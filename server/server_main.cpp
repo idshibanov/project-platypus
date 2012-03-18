@@ -2,9 +2,9 @@
 
 int main()
 {
-   GameServer serv;
-   serv.start_service();
-   return 0;
+    GameServer serv;
+    serv.start_service();
+    return 0;
 }
 
 

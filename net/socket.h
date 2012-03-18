@@ -12,63 +12,63 @@ class NetPacket;
 
 class SocketHandler
 {
-   protected:
-   
-   // socket fd number
-   int _sockfd;
+protected:
 
-   // pointer to a first packet in an queue
-   NetPacket* _pfirst;
-   
-   // we cant initialize SocketHandler
-   SocketHandler(int socket);
+    // socket fd number
+    int _sockfd;
 
-   public:
-   
-   virtual ~SocketHandler();
+    // pointer to a first packet in an queue
+    NetPacket* _pfirst;
 
-   // returns socket number
-   int GetSockNo();
+    // we cant initialize SocketHandler
+    SocketHandler(int socket);
 
-   // we can cast a class to an int
-   // returns socket number
-   operator int();
+public:
 
-   // add packet to a sending queue
-   bool AddPacket(NetPacket* p);
+    virtual ~SocketHandler();
 
-   // send single packet to a client
-   // must remove later ?
-   bool SendPacket(NetPacket* p);
+    // returns socket number
+    int GetSockNo();
 
-   // send packets in a queue
-   bool SendPackets();
+    // we can cast a class to an int
+    // returns socket number
+    operator int();
 
-   // recieve packet from a client
-   bool RecvPacket();
+    // add packet to a sending queue
+    bool AddPacket(NetPacket* p);
 
-   // pure virtual function, calls specific function
-   virtual bool HandlePacket(NetPacket *p) = 0;
+    // send single packet to a client
+    // must remove later ?
+    bool SendPacket(NetPacket* p);
 
-   // SPECIFIC SEND\RECIEVE FUNCTIONS
-   // send msg to a client, forms a packet & adds to a queue (?)
-   virtual bool SendChatMsg(const char* msg) = 0;
+    // send packets in a queue
+    bool SendPackets();
 
-   // get client msg from a recieved packet
-   virtual bool RecvChatMsg(NetPacket* p) = 0;
+    // recieve packet from a client
+    bool RecvPacket();
 
-   // send simple ack, optional bool argument
-   bool SendAck(NetPacketType ack, bool val = false);
+    // pure virtual function, calls specific function
+    virtual bool HandlePacket(NetPacket *p) = 0;
 
-   // pure virtual function, get ack
-   virtual bool RecvAck(NetPacket* p) = 0;
+    // SPECIFIC SEND\RECIEVE FUNCTIONS
+    // send msg to a client, forms a packet & adds to a queue (?)
+    virtual bool SendChatMsg(const char* msg) = 0;
 
-   // send file to a client, demo-function
-   bool SendFile(const char* msg);
+    // get client msg from a recieved packet
+    virtual bool RecvChatMsg(NetPacket* p) = 0;
 
-   // recover and print file from a packet, demo-function
-   bool RecvFile(NetPacket* p);
-   
+    // send simple ack, optional bool argument
+    bool SendAck(NetPacketType ack, bool val = false);
+
+    // pure virtual function, get ack
+    virtual bool RecvAck(NetPacket* p) = 0;
+
+    // send file to a client, demo-function
+    bool SendFile(const char* msg);
+
+    // recover and print file from a packet, demo-function
+    bool RecvFile(NetPacket* p);
+
 };
 
 #endif /* PLA_NET_SOCKET_H */
