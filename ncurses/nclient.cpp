@@ -12,7 +12,8 @@
 GameClient::GameClient():
     _current_menu( MAIN_MENU ),
     _menu( new MainMenu( this ) ),
-    _exit_flag( false )
+    _exit_flag( false ),
+   	_gs( NULL )
 {
    enter_menus();
 }
