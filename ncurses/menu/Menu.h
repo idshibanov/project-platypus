@@ -32,12 +32,12 @@ class Menu {
         virtual void draw(){ };
         virtual Menu* execute(){};
         void drawTitle() {
-            mvaddstr( 4, ( COLS/2 )-13, "_______  ________    _______");
-            mvaddstr( 5, ( COLS/2 )-14, "/  _____||       /   /  _____|");
-            mvaddstr( 6, ( COLS/2 )-14, "|  |  __  `---/  /   |  |  __");
-            mvaddstr( 7, ( COLS/2 )-14, "|  | |_ |    /  /    |  | |_ |");
-            mvaddstr( 8, ( COLS/2 )-14, "|  |__| |   /  /----.|  |__| |");
-            mvaddstr( 9, ( COLS/2 )-13, "\\______|  /________| \\______|");
+            mvaddstr( 3, ( COLS/2 )-13, "_______  ________    _______");
+            mvaddstr( 4, ( COLS/2 )-14, "/  _____||       /   /  _____|");
+            mvaddstr( 5, ( COLS/2 )-14, "|  |  __  `---/  /   |  |  __");
+            mvaddstr( 6, ( COLS/2 )-14, "|  | |_ |    /  /    |  | |_ |");
+            mvaddstr( 7, ( COLS/2 )-14, "|  |__| |   /  /----.|  |__| |");
+            mvaddstr( 8, ( COLS/2 )-13, "\\______|  /________| \\______|");
         };
 };
 

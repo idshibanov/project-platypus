@@ -52,7 +52,21 @@ void GameScreen::run_select()
 
         for (fd = 0; fd < 4; fd++) {
             if (FD_ISSET(fd, &_testfds)) {
-                if (fd == 0)  {
+                if ( fd == _server_sock ) {
+                    ioctl( fd, FIONREAD, &nread );
+
+                    if( nread == 0 ) {
+                        close( fd );
+                        mvcur(0,COLS-1,LINES-1,0);
+                        endwin();         
+                        exit(0);
+                    }
+                    
+                    _serv_sh->RecvPacket();
+                    clear();
+                    drawGameScreen();				
+                    refresh();
+                } else if (fd == 0)  {
                     ch = getch();
                     switch ( ch ) {
                         case KEY_DOWN:
@@ -94,20 +108,6 @@ void GameScreen::run_select()
                     drawGameScreen();
                     refresh();
                  
-                } else {
-                    ioctl( fd, FIONREAD, &nread );
-
-                    if( nread == 0 ) {
-                        close( fd );
-                        mvcur(0,COLS-1,LINES-1,0);
-                        endwin();         
-                        exit(0);
-                    }
-                    
-                    _serv_sh->RecvPacket();
-                    clear();
-                    drawGameScreen();				
-                    refresh();
                 }
             }
         }
@@ -150,6 +150,8 @@ bool GameScreen::net_connect()
     FD_ZERO(&_readfds);
     FD_SET(_server_sock, &_readfds);
     FD_SET(STDIN_FILENO, &_readfds);
+
+    clear();
 
     init_game();
     run_select();

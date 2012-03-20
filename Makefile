@@ -14,8 +14,9 @@ server: server_main.o server.o packet.o socket.o server_socket.o
 client: client_main.o packet.o socket.o client_socket.o
 	$(cc) $(OBJ_DEST)/client_main.o $(OBJ_DEST)/packet.o $(OBJ_DEST)/socket.o $(OBJ_DEST)/client_socket.o -o $(BIN_DEST)/client
 
-nclient: nclient.o packet.o socket.o client_socket.o GameScreen.o MainMenu.o LoginMenu.o RegisterMenu.o SettingsMenu.o ScoresMenu.o
-	$(cc) -g $(OBJ_DEST)/nclient.o $(OBJ_DEST)/MainMenu.o $(OBJ_DEST)/SettingsMenu.o $(OBJ_DEST)/ScoresMenu.o $(OBJ_DEST)/RegisterMenu.o $(OBJ_DEST)/LoginMenu.o $(OBJ_DEST)/packet.o $(OBJ_DEST)/socket.o $(OBJ_DEST)/client_socket.o $(OBJ_DEST)/GameScreen.o -lncurses -o $(BIN_DEST)/nclient
+nclient: nclient.o packet.o socket.o client_socket.o GameScreen.o MainMenu.o LoginMenu.o RegisterMenu.o SettingsMenu.o ScoresMenu.o GameMenu.o
+	$(cc) -g $(OBJ_DEST)/nclient.o $(OBJ_DEST)/MainMenu.o $(OBJ_DEST)/SettingsMenu.o $(OBJ_DEST)/ScoresMenu.o \
+    $(OBJ_DEST)/RegisterMenu.o $(OBJ_DEST)/LoginMenu.o $(OBJ_DEST)/GameMenu.o $(OBJ_DEST)/packet.o $(OBJ_DEST)/socket.o $(OBJ_DEST)/client_socket.o $(OBJ_DEST)/GameScreen.o -lncurses -o $(BIN_DEST)/nclient
 
 # Server sources
 server_main.o: $(SERVER_SRC)/server_main.cpp $(CORE_SRC)/defines.h
@@ -44,6 +45,9 @@ SettingsMenu.o: $(NC_SRC)/menu/SettingsMenu.cpp $(NC_SRC)/menu/SettingsMenu.h
 
 ScoresMenu.o: $(NC_SRC)/menu/ScoresMenu.cpp $(NC_SRC)/menu/ScoresMenu.h
 	$(cc) -o $(OBJ_DEST)/ScoresMenu.o -c $(NC_SRC)/menu/ScoresMenu.cpp
+
+GameMenu.o: $(NC_SRC)/menu/GameMenu.cpp $(NC_SRC)/menu/GameMenu.h
+	$(cc) -o $(OBJ_DEST)/GameMenu.o -c $(NC_SRC)/menu/GameMenu.cpp
 
 # Client sources
 client_main.o: $(NC_SRC)/client_main.cpp $(CORE_SRC)/defines.h

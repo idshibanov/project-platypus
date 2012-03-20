@@ -11,6 +11,9 @@ void ScoresMenu:: draw()
     box( stdscr, '|', '-' );
     drawTitle();
 
+    mvaddstr( LINES - 10, COLS/2 - 1 , "S C O R E S" );
+    mvaddstr( LINES - 9, COLS/2 - 1 , "***********" );
+
     if ( _selected == 0 )
         mvaddstr( LINES - 8, COLS/2 - 2, "> Back <" );
     else
