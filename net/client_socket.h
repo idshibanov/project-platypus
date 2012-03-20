@@ -38,6 +38,7 @@ class ClientSocketHandler : public SocketHandler
    bool RecvChatMsg(NetPacket* p);
    bool RecvAck(NetPacket* p);
    bool SendMovement(unsigned int side);
+   bool RecvMovement(NetPacket* p);
    bool RecvCharData(NetPacket* p);
 };
 

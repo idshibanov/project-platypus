@@ -50,7 +50,8 @@ public:
     bool RecvChatMsg(NetPacket* p);
     bool RecvClientLogin(NetPacket* p);
     bool RecvClientMovement(NetPacket* p);
-    bool SendMapData(int sockfd, Coords& coord);
+    bool SendMoveResponse(bool value);
+    bool SendCharData(int sockfd, Coords& coord);
 
     friend class ServerSocketArray;
 };

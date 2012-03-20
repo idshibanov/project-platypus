@@ -265,7 +265,7 @@ void GameServer::broadcast_movement(int fd)
     for (int fd_cur = _min_client_fd; fd_cur < _max_client_fd; fd_cur++) {
         if (FD_ISSET(fd_cur, &_readfds)) {
             if (fd_cur != fd) {
-                _client_sock->GetClient(fd_cur)->SendMapData(fd, mvm);
+                _client_sock->GetClient(fd_cur)->SendCharData(fd, mvm);
                 printf("Broadcast %d %d\n", mvm.x, mvm.y);
             }
         }

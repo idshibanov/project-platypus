@@ -14,6 +14,7 @@ void LoginMenu:: draw()
     clear();
     box( stdscr, '|', '-' );
     drawTitle();
+    drawStatus();
 
     mvaddstr( LINES - 10, COLS/2 - 1 , "L O G I N" );
     mvaddstr( LINES - 9, COLS/2 - 1 , "*********" );

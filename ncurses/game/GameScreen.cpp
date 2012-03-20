@@ -232,24 +232,12 @@ void GameScreen::set_char(int id, unsigned int x, unsigned int y)
         addNewPlayer(id, x, y, (char*) "");
 }
 
-void GameScreen::move_char()
+void GameScreen::move_char(unsigned int x, unsigned int y)
 {
     if (!_last_move)
         return;
-
-    switch(_last_move) {
-        case 2:
-            _c->y++;
-            break;
-        case 4:
-            _c->x--;
-            break;
-        case 6:
-            _c->x++;
-            break;
-        case 8:
-            _c->y--;
-            break;
-    }
-    _last_move = 0;
+    _c->x = x;
+    _c->y = y;
+    //_last_move = 0;
 }
+

@@ -20,7 +20,6 @@ class GameScreen {
     private:
         
         int _port, _server_sock;
-
         int _last_move;
 
         ChatWindow* _cw;
@@ -45,7 +44,7 @@ class GameScreen {
         void drawGameScreen();
         Coords getPlayerPosition();
         void set_char(int id, unsigned int x, unsigned int y);
-        void move_char();
+        void move_char(unsigned int x, unsigned int y);
 };
 
 #endif

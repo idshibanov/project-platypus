@@ -174,26 +174,47 @@ bool ServerSocketHandler::RecvClientMovement(NetPacket* p)
 
     bool retval = false;
 
-    // TODO: proper handling
-
     unsigned int mvm = p->RecvUint();
     if(_game->MovePlayer(_sockfd, mvm))
     {
         //printf("Client %d moved in direction %d\n", _sockfd, mvm);
-        SendAck(PACKET_SERVER_MOVE_RESPONSE, true);
+        SendMoveResponse(true);
         _serv->broadcast_movement(_sockfd);
         retval = true;
     } else
     {
-        SendAck(PACKET_SERVER_MOVE_RESPONSE, false);
+        SendMoveResponse(false);
     }
 
     return retval;
 }
 
-bool ServerSocketHandler::SendMapData(int sockfd, Coords& coord)
+
+bool ServerSocketHandler::SendMoveResponse(bool value)
 {
-    NetPacket* p = new NetPacket(PACKET_SERVER_MAPDATA);
+    NetPacket* p = new NetPacket(PACKET_SERVER_MOVE_RESPONSE);
+    bool retval = false;
+
+    if ( p->SendBool(value) ) {
+        if ( value ) {
+            Coords coord = _game->GetPlayer(_sockfd);
+            if ( p->SendUint(coord.x) )
+                if ( p->SendUint(coord.y) )
+                    retval = this->SendPacket(p);
+
+        }    
+        retval = this->SendPacket(p);
+    }
+
+    // important
+    delete p;
+
+    return retval;
+}
+
+bool ServerSocketHandler::SendCharData(int sockfd, Coords& coord)
+{
+    NetPacket* p = new NetPacket(PACKET_SERVER_CHARDATA);
     bool retval = false;
 
     if ( p->SendUint(sockfd) )

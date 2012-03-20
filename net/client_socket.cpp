@@ -134,9 +134,8 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
             if (p->RecvBool())
             {
                // EVENT: recieved true on request
-               _gs->move_char();
+               retval = RecvMovement(p);
             }
-            retval = true;
         }
         break;
     case PACKET_SERVER_CHAT:
@@ -223,6 +222,20 @@ bool ClientSocketHandler::SendMovement(unsigned int side)
 
     // important
     delete p;
+
+    return retval;
+}
+
+bool ClientSocketHandler::RecvMovement(NetPacket* p)
+{
+    // DEBUG: it is not a null pointer
+    assert(p != (NetPacket *)0);
+
+    bool retval = false;
+    
+    unsigned int x = p->RecvUint();
+    unsigned int y = p->RecvUint();    
+    _gs->move_char(x, y);
 
     return retval;
 }
