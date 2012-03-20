@@ -11,12 +11,16 @@ class NetPacket;
 
 enum ClientStatus
 {
-    STATUS_CLIENT_INACTIVE,        // not connected
-    STATUS_CLIENT_NOT_AUTH,        // just connected
-    STATUS_CLIENT_AUTH,            // succesfully logged in
-    STATUS_CLIENT_MAP,             // we are downloading game map
-    STATUS_CLIENT_ACTIVE,          // we are playing
-    STATUS_CLIENT_END              // always at the end
+    STATUS_CLIENT_OFFLINE,        // initial state
+    STATUS_CLIENT_REGISTRATION,   // trying to register
+    STATUS_CLIENT_CONNECTED,      // just connected
+    STATUS_CLIENT_AUTHORIZED,     // succesfully logged in
+    STATUS_CLIENT_JOINED,         // joined game lobby (intermission)
+    STATUS_CLIENT_GAME_STARTED,   // game is starting
+    STATUS_CLIENT_GAME_INIT,      // downloading game map data
+    STATUS_CLIENT_GAME_READY,     // ready to go
+    STATUS_CLIENT_GAME_ACTIVE,    // playing
+    STATUS_CLIENT_END             // always at the end
 };
 
 class ClientSocketHandler : public SocketHandler
@@ -34,7 +38,7 @@ class ClientSocketHandler : public SocketHandler
    bool RecvChatMsg(NetPacket* p);
    bool RecvAck(NetPacket* p);
    bool SendMovement(unsigned int side);
-   bool RecvMapData(NetPacket* p);
+   bool RecvCharData(NetPacket* p);
 };
 
 #endif /* PLA_NET_CLIENT_SOCKET_H */

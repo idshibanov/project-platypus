@@ -14,5 +14,6 @@
 #define SERV_PORT 8030
 #define MAX_PACKET_SIZE 1000
 #define MAX_KB_INPUT 100
+#define REGISTRATION_ENABLED 0
 
 #endif /* PLA_DEFINES_H */

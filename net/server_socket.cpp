@@ -10,7 +10,7 @@
 ServerSocketHandler::ServerSocketHandler (int socket, GameServer* serv, GameInstance* game)
     : SocketHandler(socket)
 {
-    _status = STATUS_SERVER_INACTIVE;
+    _status = STATUS_SERVER_OFFLINE;
     _serv = serv;
     _game = game;
 }
@@ -28,33 +28,61 @@ bool ServerSocketHandler::HandlePacket(NetPacket* p)
     //printf("got %d bytes, packet %d\n", p->_size, p->_buffer[p->_pos]);
     bool retval = false;
 
-    switch(p->_buffer[p->_pos++])
-    {
-    case PACKET_CLIENT_AUTHORIZE:
-        if ( _status == STATUS_SERVER_INACTIVE )
-        {
-            retval = this->RecvClientLogin(p);
+    switch(p->_buffer[p->_pos++]) {
+    
+    case PACKET_CLIENT_CONNECT:
+        if ( _status == STATUS_SERVER_OFFLINE ) {
+            //_serv->ProcessNew();
+            retval = true;
         }
         break;
     case PACKET_CLIENT_DISCONNECT:
         _serv->kill_client(_sockfd);
         retval = true;
         break;
-    case PACKET_CLIENT_JOIN:
-        if ( _status == STATUS_SERVER_AUTHORIZED )
-        {
-            _status = STATUS_SERVER_JOINING;
+    case PACKET_CLIENT_AUTH_REQUEST:
+        if ( _status == STATUS_SERVER_CONNECTED ) {
+            // function will update client status itself
+            retval = this->RecvClientLogin(p);
+        }
+        break;
+    case PACKET_CLIENT_REG_CONNECT:
+        if ( _status == STATUS_SERVER_OFFLINE ) {
+            if ( REGISTRATION_ENABLED ) {
+                SendAck(PACKET_SERVER_REG_STATUS, true);
+                _status = STATUS_SERVER_REGISTRATION;
+            } else {
+                SendAck(PACKET_SERVER_REG_STATUS, false);
+            }
+        }
+        break;
+    case PACKET_CLIENT_REG_REQUEST:
+        if ( _status == STATUS_SERVER_REGISTRATION ) {
+            // function will update client status itself
+            //retval = this->RecvRegRequest(p);
+        }
+        break;
+    case PACKET_CLIENT_JOIN_ROOM:
+        if ( _status == STATUS_SERVER_AUTHORIZED ) {
+            //SendClientList();
+            _status = STATUS_SERVER_JOINED;
             retval = true;
         }
         break;
     case PACKET_CLIENT_JOIN_READY:
-        if ( _status == STATUS_SERVER_JOINING )
-        {
-            _status = STATUS_SERVER_ACTIVE;
+        if ( _status == STATUS_SERVER_JOINED )  {
+            // function will update client status itself
+            //StartAGame();
             retval = true;
         }
         break;
-    case PACKET_CLIENT_MOVEMENT:
+    case PACKET_CLIENT_JOIN_INIT:
+        if ( _status == STATUS_SERVER_GAME_READY ) {
+            _status = STATUS_SERVER_GAME_ACTIVE;
+            retval = true;
+        }
+        break;
+    case PACKET_CLIENT_MOVE_REQUEST:
         retval = this->RecvClientMovement(p);
         break;
     case PACKET_CLIENT_CHAT:
@@ -129,17 +157,12 @@ bool ServerSocketHandler::RecvClientLogin(NetPacket* p)
 
     bool retval = false;   
     char msg[p->_size];
+    p->RecvString(msg);
 
-    if (_status != STATUS_SERVER_INACTIVE ) { }
-    else
-    {
-        p->RecvString(msg);
+    // TODO: login system
 
-        // TODO: login system
-
-        _status = STATUS_SERVER_AUTHORIZED;
-        retval = true;
-    }
+    _status = STATUS_SERVER_AUTHORIZED;
+    retval = true;
 
     return retval;   
 }
@@ -207,6 +230,8 @@ bool ServerSocketArray::AddClient(int socket)
     assert(socket >= MIN_CLIENT_SOCKFD);
 
     bool retval = false;
+    
+    // TODO: rework according to ver.2
 
     if (socket < MIN_CLIENT_SOCKFD) { }
     else if ( _length < MAX_CLIENTS )

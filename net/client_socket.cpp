@@ -10,7 +10,7 @@
 
 ClientSocketHandler::ClientSocketHandler(int socket, GameScreen* gs) : SocketHandler(socket)
 {
-   _status = STATUS_CLIENT_INACTIVE;
+   _status = STATUS_CLIENT_OFFLINE;
    _gs = gs;
 }
 
@@ -29,19 +29,20 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
     bool retval = false;
 
     switch(p->_buffer[p->_pos++]) {
+    
     case PACKET_SERVER_FULL:
-        if (_status == STATUS_CLIENT_INACTIVE ) {
+        if (_status == STATUS_CLIENT_OFFLINE ) {
             // printf("Sorry, server is full\n");            
-            // TODO: disconnect      
+            // TODO: status bar in the menu, disconnect
             retval = true;
         }
         break;
     case PACKET_SERVER_WELCOME:
-        if (_status == STATUS_CLIENT_INACTIVE ) {
+        if (_status == STATUS_CLIENT_OFFLINE ) {
             // temp replace
             //_status = STATUS_CLIENT_NOT_AUTH;
 
-            _status = STATUS_CLIENT_ACTIVE;
+            _status = STATUS_CLIENT_CONNECTED;
 
             // TODO: ask user to send his username
             retval = true;
@@ -52,26 +53,83 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
         retval = true;
         break;
     case PACKET_SERVER_AUTH_RESPONSE:
-        if (_status == STATUS_CLIENT_NOT_AUTH ) {
+        if (_status == STATUS_CLIENT_CONNECTED ) {
             if (p->RecvBool()) {
-                _status = STATUS_CLIENT_AUTH;
+                _status = STATUS_CLIENT_AUTHORIZED;
+            } else {
+                // TODO: relogin
             }
             retval = true;
         }      
         break;
-    case PACKET_SERVER_JOIN_MAP:
-        if (_status == STATUS_CLIENT_MAP ) {
-            //retval = this->RecvMapStruct();
+    case PACKET_SERVER_REG_STATUS:
+        if (_status == STATUS_CLIENT_OFFLINE ) {
+            if (p->RecvBool()) {
+                _status = STATUS_CLIENT_REGISTRATION;
+                // TODO: let user register
+            } else {
+                // TODO: sorry message in status bar
+            }
+            retval = true;
+        }      
+        break;
+    case PACKET_SERVER_REG_RESPONSE:
+        if (_status == STATUS_CLIENT_REGISTRATION ) {
+            if (p->RecvBool()) {
+                _status = STATUS_CLIENT_OFFLINE;
+                // TODO: success action, get login form?
+            } else {
+                // TODO: register again
+            }
+            retval = true;
+        }      
+        break;
+    case PACKET_SERVER_JOIN_DATA:
+        if (_status == STATUS_CLIENT_AUTHORIZED ) {
+            // function will update server status itself
+            //retval = this->RecvClientList(p);
         }
         break;
+    case PACKET_SERVER_JOIN_STARTSIN:
+        if (_status == STATUS_CLIENT_JOINED )
+            _status = STATUS_CLIENT_GAME_STARTED;
+            
+        if (_status == STATUS_CLIENT_GAME_STARTED ) {
+            // TODO: update "Game starts in ..." counter
+            //retval = this->RecvStartCount(p);
+        }
+        break;
+    case PACKET_SERVER_JOIN_MAPFIRST:
+        if (_status == STATUS_CLIENT_GAME_STARTED ) {
+            //retval = this->RecvMapStruct(p, PACKET_SERVER_JOIN_MAPFIRST);
+            _status = STATUS_CLIENT_GAME_INIT;
+        }
+        break;
+    case PACKET_SERVER_JOIN_MAPDATA:
+        if (_status == STATUS_CLIENT_GAME_INIT ) {
+            //retval = this->RecvMapStruct(p, PACKET_SERVER_JOIN_MAPDATA);
+        }
+        break;
+    case PACKET_SERVER_JOIN_MAPLAST:
+        if (_status == STATUS_CLIENT_GAME_INIT ) {
+            // function will update server status itself
+            //retval = this->RecvMapStruct(p, PACKET_SERVER_JOIN_MAPLAST);
+        }
+        break;
+    case PACKET_SERVER_CHARDATA:
+        if (_status == STATUS_CLIENT_GAME_ACTIVE ) {
+            // EVENT: another character moved
+            retval = this->RecvCharData(p);
+         }
+         break;
     case PACKET_SERVER_MAPDATA:
-        if (_status == STATUS_CLIENT_ACTIVE ) {
+        if (_status == STATUS_CLIENT_GAME_ACTIVE ) {
             // EVENT: something happend on the map
-            retval = this->RecvMapData(p);
+            // retval = this->RecvMapData(p);
          }
          break;
     case PACKET_SERVER_MOVE_RESPONSE:
-        if (_status == STATUS_CLIENT_ACTIVE )
+        if (_status == STATUS_CLIENT_GAME_ACTIVE )
         {
             if (p->RecvBool())
             {
@@ -82,7 +140,8 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
         }
         break;
     case PACKET_SERVER_CHAT:
-        if (_status < STATUS_CLIENT_END ) { // should be = STATUS_CLIENT_ACTIVE
+        // should be = STATUS_CLIENT_GAME_ACTIVE or JOINED
+        if (_status < STATUS_CLIENT_END ) { 
             retval = this->RecvChatMsg(p);
         }         
         break;
@@ -155,7 +214,7 @@ bool ClientSocketHandler::RecvAck(NetPacket* p)
 
 bool ClientSocketHandler::SendMovement(unsigned int side)
 {
-    NetPacket* p = new NetPacket(PACKET_CLIENT_MOVEMENT);
+    NetPacket* p = new NetPacket(PACKET_CLIENT_MOVE_REQUEST);
     bool retval = false;
 
     if ( p->SendUint(side) ) {
@@ -168,7 +227,7 @@ bool ClientSocketHandler::SendMovement(unsigned int side)
     return retval;
 }
 
-bool ClientSocketHandler::RecvMapData(NetPacket* p)
+bool ClientSocketHandler::RecvCharData(NetPacket* p)
 {
     // DEBUG: it is not a null pointer
     assert(p != (NetPacket *)0);

@@ -12,11 +12,16 @@ struct Point;
 
 enum ServerStatus
 {
-    STATUS_SERVER_INACTIVE,        // client is just connected and not authorized
-    STATUS_SERVER_AUTHORIZED,      // client is authorized
-    STATUS_SERVER_JOINING,         // client tries to join
-    STATUS_SERVER_ACTIVE,          // client is active in the game
-    STATUS_SERVER_END              // always at the end
+    STATUS_SERVER_OFFLINE,        // client is just connected and not authorized
+    STATUS_SERVER_REGISTRATION,   // client is trying to register
+    STATUS_SERVER_CONNECTED,      // client is trying to log in
+    STATUS_SERVER_AUTHORIZED,     // client is logged in
+    STATUS_SERVER_JOINED,         // client is active within the lobby (intermission)
+    STATUS_SERVER_GAME_INIT,      // game is starting
+    STATUS_SERVER_GAME_MAPDATA,   // client is receiving map data
+    STATUS_SERVER_GAME_READY,     // client is ready to go
+    STATUS_SERVER_GAME_ACTIVE,    // client is active within the game
+    STATUS_SERVER_END             // always at the end
 };
 
 class ServerSocketHandler : public SocketHandler
