@@ -29,10 +29,10 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
     bool retval = false;
 
     switch(p->_buffer[p->_pos++]) {
-    
+
     case PACKET_SERVER_FULL:
         if (_status == STATUS_CLIENT_OFFLINE ) {
-            // printf("Sorry, server is full\n");            
+            // printf("Sorry, server is full\n");
             // TODO: status bar in the menu, disconnect
             retval = true;
         }
@@ -60,7 +60,7 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
                 // TODO: relogin
             }
             retval = true;
-        }      
+        }
         break;
     case PACKET_SERVER_REG_STATUS:
         if (_status == STATUS_CLIENT_OFFLINE ) {
@@ -71,7 +71,7 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
                 // TODO: sorry message in status bar
             }
             retval = true;
-        }      
+        }
         break;
     case PACKET_SERVER_REG_RESPONSE:
         if (_status == STATUS_CLIENT_REGISTRATION ) {
@@ -82,7 +82,7 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
                 // TODO: register again
             }
             retval = true;
-        }      
+        }
         break;
     case PACKET_SERVER_JOIN_DATA:
         if (_status == STATUS_CLIENT_AUTHORIZED ) {
@@ -93,7 +93,7 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
     case PACKET_SERVER_JOIN_STARTSIN:
         if (_status == STATUS_CLIENT_JOINED )
             _status = STATUS_CLIENT_GAME_STARTED;
-            
+
         if (_status == STATUS_CLIENT_GAME_STARTED ) {
             // TODO: update "Game starts in ..." counter
             //retval = this->RecvStartCount(p);
@@ -140,13 +140,13 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
         break;
     case PACKET_SERVER_CHAT:
         // should be = STATUS_CLIENT_GAME_ACTIVE or JOINED
-        if (_status < STATUS_CLIENT_END ) { 
+        if (_status < STATUS_CLIENT_END ) {
             retval = this->RecvChatMsg(p);
-        }         
+        }
         break;
     case PACKET_SERVER_FILE:
         retval = this->RecvFile(p);
-        break;      
+        break;
     }
 
     return retval;
@@ -183,12 +183,8 @@ bool ClientSocketHandler::RecvChatMsg(NetPacket* p)
 
             // got processed msg here
 #ifdef PLA_TEMP_NCURSES_OUTPUT
-            _gs->ncurses_temp_out(msg);
+            _gs->addMessage(msg);
 #endif
-#ifndef PLA_TEMP_NCURSES_OUTPUT
-            printf("Server says: %s", msg);
-#endif
-
         } else {
             // printf("RecvString returned false\n");
         }
@@ -232,9 +228,9 @@ bool ClientSocketHandler::RecvMovement(NetPacket* p)
     assert(p != (NetPacket *)0);
 
     bool retval = false;
-    
+
     unsigned int x = p->RecvUint();
-    unsigned int y = p->RecvUint();    
+    unsigned int y = p->RecvUint();
     _gs->move_char(x, y);
 
     return retval;
