@@ -10,7 +10,7 @@
 ServerSocketHandler::ServerSocketHandler (int socket, GameServer* serv, GameInstance* game)
     : SocketHandler(socket)
 {
-    _status = STATUS_SERVER_OFFLINE;
+    _status = STATUS_SERVER_GAME_ACTIVE;
     _serv = serv;
     _game = game;
 }

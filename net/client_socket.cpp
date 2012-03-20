@@ -10,7 +10,7 @@
 
 ClientSocketHandler::ClientSocketHandler(int socket, GameScreen* gs) : SocketHandler(socket)
 {
-   _status = STATUS_CLIENT_OFFLINE;
+   _status = STATUS_CLIENT_GAME_ACTIVE;
    _gs = gs;
 }
 
