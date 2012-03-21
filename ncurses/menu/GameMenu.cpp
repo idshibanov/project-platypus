@@ -4,6 +4,7 @@
 #include "GameMenu.h"
 #include "RegisterMenu.h"
 #include "SettingsMenu.h"
+#include "../tools/Prompt.h"
 #include "../game/GameScreen.h"
 
 GameMenu::GameMenu( GameClient* gc ): Menu( gc, 3 )
@@ -44,8 +45,12 @@ Menu* GameMenu::execute()
 {
 
     if ( _selected == 0 ) {        
-        // start a game session.        
-        GameScreen gs( "Chris" );
+        // start a game session. 
+        // Temporary... just for testing purposes
+        Prompt p( ALPHANUMERIC );
+        mvaddstr( LINES - 11, COLS / 2 - 18, "Username: " );
+        std::string str = p.getMessage( COLS / 2 - 5, LINES - 11, 14 );        
+        GameScreen gs( str );
         gs.net_connect();
         return new GameMenu( _gc );
     } else if ( _selected == 1 ) {
