@@ -5,6 +5,7 @@
 #define PLA_NET_PACKET_H
 
 #include "../core/datatypes.h"
+#include <string>
 
 class SocketHandler;
 
@@ -101,6 +102,7 @@ class NetPacket
     bool SendUint(uint data);
     uint RecvUint();
     bool SendString(const char* data);
+    bool SendString(std::string& data);
     bool RecvString(char* buf);
 
     // SocketHandler owns it and can access data directly

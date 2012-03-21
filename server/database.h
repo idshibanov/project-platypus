@@ -1,6 +1,7 @@
 #include <my_global.h>
 #include <mysql.h>
-#include <string.h>
+#include <string>
+using namespace std;
 
 class DatabaseServer {
     MYSQL* _conn;

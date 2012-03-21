@@ -10,7 +10,7 @@
 ServerSocketHandler::ServerSocketHandler (int socket, GameServer* serv, GameInstance* game)
     : SocketHandler(socket)
 {
-    _status = STATUS_SERVER_GAME_ACTIVE;
+    _status = STATUS_SERVER_CONNECTED;
     _serv = serv;
     _game = game;
 }
@@ -83,10 +83,14 @@ bool ServerSocketHandler::HandlePacket(NetPacket* p)
         }
         break;
     case PACKET_CLIENT_MOVE_REQUEST:
-        retval = this->RecvClientMovement(p);
+        if ( _status == STATUS_SERVER_GAME_ACTIVE ) {
+            retval = this->RecvClientMovement(p);        
+        }
         break;
     case PACKET_CLIENT_CHAT:
-        retval = this->RecvChatMsg(p);
+        if ( _status == STATUS_SERVER_GAME_ACTIVE ) {
+            retval = this->RecvChatMsg(p);
+        }
         break;
     case PACKET_CLIENT_FILE:
         retval = this->RecvFile(p);
@@ -155,16 +159,35 @@ bool ServerSocketHandler::RecvClientLogin(NetPacket* p)
     // DEBUG: it is not a null pointer
     assert(p != (NetPacket *)0);
 
-    bool retval = false;   
-    char msg[p->_size];
-    p->RecvString(msg);
+    bool retval = false;
+    char* usr = new char[p->_size+1];
+    char* pwd = new char[p->_size+1];
 
-    // TODO: login system
-
-    _status = STATUS_SERVER_AUTHORIZED;
-    retval = true;
-
-    return retval;   
+    // check if client is actually authorized to send this packet
+    if (0 /*_status != STATUS_SERVER_ACTIVE */) { }
+    else
+    {
+        if (p->RecvString(usr)) {
+            if (p->RecvString(pwd)) {
+                retval = true;
+                string tmp( "pass" );
+                string log_tmp( usr );
+                log_tmp.insert( 0, "Client " );
+                if (tmp.compare(string(pwd)) == 0 ) {
+                    SendAck(PACKET_SERVER_AUTH_RESPONSE, true);
+                    //_status = STATUS_SERVER_AUTHORIZED;
+                    _status = STATUS_SERVER_GAME_ACTIVE;
+                    _serv->log( log_tmp.append(" logged in!") );
+                } else {
+                    SendAck(PACKET_SERVER_AUTH_RESPONSE, false);  
+                    _serv->log( log_tmp.append(" failed to log in") );              
+                }
+            }
+        }
+    }
+    delete [] usr;
+    delete [] pwd;
+    return retval;
 }
 
 bool ServerSocketHandler::RecvClientMovement(NetPacket* p)

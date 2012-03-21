@@ -156,6 +156,24 @@ bool NetPacket::SendString(const char* data)
     return retval;
 }
 
+bool NetPacket::SendString(std::string& data)
+{
+    bool retval = false;
+
+    // return false if string is longer than space left in a packet
+    if (_size + data.length() + 1 > MAX_PACKET_SIZE) { 
+    } else {
+        int k = 0;
+        while ((_buffer[_size++] = data[k++]) != '\0');
+        _buffer[_size] = '\0';
+        // _size--;
+        retval = true;
+    }
+
+    return retval;
+}
+
+
 bool NetPacket::RecvString(char* buf)
 {
     // DEBUG: passed string is not null
@@ -166,7 +184,7 @@ bool NetPacket::RecvString(char* buf)
 
     bool retval = false;
     uint i;
-
+    
     // strcpy works buggy, replaced with plain while loop
 
     //i = strlen((const char*)&_buffer[_pos]);

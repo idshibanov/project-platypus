@@ -16,28 +16,28 @@ void GameMenu:: draw()
     box( stdscr, '|', '-' );
     drawTitle();
 
-    mvaddstr( LINES - 10, COLS/2 - 5 , "G A M E" );
-    mvaddstr( LINES - 9, COLS/2 - 5 , "*******" );
+    mvaddstr( LINES - 10, COLS/2 - 1 , "G A M E" );
+    mvaddstr( LINES - 9, COLS/2 - 1 , "*******" );
 
     if ( _selected == 0 )
-        mvaddstr( LINES - 8, COLS/2 - 8, "> START GAME <" );
+        mvaddstr( LINES - 8, COLS/2 - 2, "> START GAME <" );
     else
-        mvaddstr( LINES - 8, COLS/2 - 6, "START GAME" );
+        mvaddstr( LINES - 8, COLS/2, "START GAME" );
 
     if ( _selected == 1 )
-        mvaddstr( LINES - 7, COLS/2 - 8, "> HIGH SCORES <" );
+        mvaddstr( LINES - 7, COLS/2 - 2, "> HIGH SCORES <" );
     else
-        mvaddstr( LINES - 7, COLS/2 - 6, "HIGH SCORES" );
+        mvaddstr( LINES - 7, COLS/2, "HIGH SCORES" );
 
     if ( _selected == 2 )
-        mvaddstr( LINES - 6, COLS/2 - 8, "> SETTINGS <" );
+        mvaddstr( LINES - 6, COLS/2 - 2, "> SETTINGS <" );
     else
-        mvaddstr( LINES - 6, COLS/2 - 6, "SETTINGS" );
+        mvaddstr( LINES - 6, COLS/2, "SETTINGS" );
 
     if ( _selected == 3 )
-        mvaddstr( LINES - 5, COLS/2 - 8, "> BACK <" );
+        mvaddstr( LINES - 5, COLS/2 - 2, "> BACK <" );
     else
-        mvaddstr( LINES - 5, COLS/2 - 6, "BACK" );
+        mvaddstr( LINES - 5, COLS/2, "BACK" );
     refresh();
 };
 
@@ -48,10 +48,13 @@ Menu* GameMenu::execute()
         // start a game session. 
         // Temporary... just for testing purposes
         Prompt p( ALPHANUMERIC );
-        mvaddstr( LINES - 8, COLS / 2 + 5, "Username: " );
-        std::string str = p.getMessage( COLS / 2 + 15, LINES - 8, 14 );        
+        mvaddstr( LINES - 13, COLS / 2 - 14, "Username: " );
+        std::string str = p.getMessage( COLS / 2 - 4, LINES - 13, 14 );
+        Prompt p2( ALPHANUMERIC );
+        mvaddstr( LINES - 12, COLS / 2 - 14, "Password: " );
+        std::string str2 = p2.getMessage( COLS / 2 - 4, LINES - 12, 14 ); 
         GameScreen gs( str );
-        gs.net_connect();
+        gs.net_connect( str2 );
         return new GameMenu( _gc );
     } else if ( _selected == 1 ) {
         return new ScoresMenu( _gc );

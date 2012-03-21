@@ -5,6 +5,7 @@
 #define PLA_NET_CLIENT_SOCKET_H
 
 #include "socket.h"
+#include <string>
 
 class GameScreen;
 class NetPacket;
@@ -39,6 +40,7 @@ class ClientSocketHandler : public SocketHandler
    bool RecvAck(NetPacket* p);
    bool SendMovement(unsigned int side);
    bool RecvMovement(NetPacket* p);
+   bool SendAuthRequest(std::string usr, std::string pwd);
    bool RecvCharData(NetPacket* p);
 };
 

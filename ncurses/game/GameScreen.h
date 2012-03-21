@@ -7,7 +7,6 @@
 #include <string>
 
 #include "../../core/defines.h"
-#include "../tools/Prompt.h"
 
 class Character;
 struct Coords;
@@ -29,14 +28,13 @@ class GameScreen {
         std::string _message;
         fd_set _readfds, _testfds;
         ClientSocketHandler* _serv_sh;
-       	Prompt* _pr;
         
     public:
         GameScreen( std::string n, int port = SERV_PORT );
         ~GameScreen();
         void run_select();
         // Network related memebers
-        bool net_connect();
+        bool net_connect(std::string pwd);
 
         // Game related members
         void init_game();

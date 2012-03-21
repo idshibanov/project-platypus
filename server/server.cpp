@@ -266,7 +266,7 @@ void GameServer::broadcast_movement(int fd)
         if (FD_ISSET(fd_cur, &_readfds)) {
             if (fd_cur != fd) {
                 _client_sock->GetClient(fd_cur)->SendCharData(fd, mvm);
-                printf("Broadcast %d %d\n", mvm.x, mvm.y);
+                //printf("Broadcast %d %d\n", mvm.x, mvm.y);
             }
         }
     }
