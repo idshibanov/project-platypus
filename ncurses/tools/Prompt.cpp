@@ -55,6 +55,7 @@ string Prompt::getMessage( int x, int y, int ml ) {
             // Enter
             case 10:
             case 13:
+            	curs_set(0);
                 return _inputBuff;
             // Backspace
             case KEY_BACKSPACE:

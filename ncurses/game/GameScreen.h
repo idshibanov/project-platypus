@@ -7,6 +7,7 @@
 #include <string>
 
 #include "../../core/defines.h"
+#include "../tools/Prompt.h"
 
 class Character;
 struct Coords;
@@ -28,6 +29,7 @@ class GameScreen {
         std::string _message;
         fd_set _readfds, _testfds;
         ClientSocketHandler* _serv_sh;
+       	Prompt* _pr;
         
     public:
         GameScreen( std::string n, int port = SERV_PORT );
