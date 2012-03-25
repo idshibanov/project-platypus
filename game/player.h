@@ -19,6 +19,8 @@ public:
     static uint _id_count;
     virtual ~GameCharacter();
     uint GetID();
+    uint GetRow();
+    uint GetCol();
     bool MoveChar(uint direction);
     bool MoveChar(uint row, uint col);
     void CleanMap();
@@ -30,7 +32,7 @@ public:
     GamePlayer(MapFloor* lvl, uint row, uint col, uint sock_id);
     GamePlayer(MapFloor* lvl, uint row, uint col, uint sock_id, uint char_id );
     virtual ~GamePlayer();
-    
+    uint GetNetID();    
 };
 
 class GameNPC : public GameCharacter {

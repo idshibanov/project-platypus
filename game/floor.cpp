@@ -63,7 +63,7 @@ void MapFloor::FillWith(MapCellObjectType obj)
 bool MapFloor::CellExists(uint row, uint col) const
 {
     bool retval = true;
-    if (row > _row || col > _col)
+    if (row >= _rows || col >= _cols)
         retval = false;
     return retval;
 }
@@ -73,9 +73,9 @@ bool MapFloor::IsEmptyCell(uint row, uint col) const
     bool retval = false;
     
     // foolproof, you must check first if Cell exists
-    assert(row <= _rows && col <= _cols);
+    assert(row < _rows && col < _cols);
     
-    MapCell* next = _data[row*col+col];
+    MapCell* next = &_data[row*col+col];
     if (next->_obj == CELL_FLOOR && next->_player == 0) {
         retval = true;
     }

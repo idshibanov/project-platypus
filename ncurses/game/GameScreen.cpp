@@ -28,7 +28,7 @@ using namespace std;
 GameScreen::GameScreen( string playerName, int port ):
     _port( port ),
     _c( new Character( playerName ) ),
-    _serv_sh( (ClientSocketHandler* )0 ),
+    _serv_sh( (ClientSocketHandler* )0 ),    
    _last_move(0 )
 {};
 
@@ -58,13 +58,13 @@ void GameScreen::run_select()
                     if( nread == 0 ) {
                         close( fd );
                         mvcur(0,COLS-1,LINES-1,0);
-                        endwin();
+                        endwin();         
                         exit(0);
                     }
-
+                    
                     _serv_sh->RecvPacket();
                     clear();
-                    drawGameScreen();
+                    drawGameScreen();				
                     refresh();
                 } else if (fd == 0)  {
                     ch = getch();
@@ -104,15 +104,15 @@ void GameScreen::run_select()
                             }
                             break;
                     }
-                    clear();
+                    clear();          
                     drawGameScreen();
                     refresh();
-
+                 
                 }
             }
         }
     }
-
+    
     return;
 }
 
@@ -124,7 +124,7 @@ void GameScreen::init_game()
     drawGameScreen();
     _cw->draw();
     refresh();
-
+    
 }
 
 bool GameScreen::net_connect()
@@ -139,7 +139,7 @@ bool GameScreen::net_connect()
         perror( "socket call failed" );
         exit( 1 );
     }
-
+   
     if( connect( _server_sock, ( sockaddr* ) server, sizeof(sockaddr_in) ) == -1 ) {
         perror( "connect call failed" );
         exit( 1 );
@@ -161,7 +161,7 @@ bool GameScreen::net_connect()
 
 void GameScreen::drawGameScreen()
 {
-    _cw->draw();
+    _cw->draw(); 
 
     drawCharacters();
 
@@ -171,7 +171,7 @@ void GameScreen::drawGameScreen()
     addch( ACS_LTEE );
 
     move( LINES - CHATSIZE - 2, COLS -1 );
-    addch( ACS_RTEE );
+    addch( ACS_RTEE ); 
 }
 
 void GameScreen::drawCharacters()
@@ -189,7 +189,7 @@ void GameScreen::drawCharacters()
             addch( 'X' );
         }
     }
-
+  
 }
 
 void GameScreen::addMessage(char* str)

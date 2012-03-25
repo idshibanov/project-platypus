@@ -2,6 +2,15 @@
 #ifndef PLA_NCLIENT_CORE_H
 #define PLA_NCLIENT_CORE_H
 
+struct Coords {
+    unsigned int x, y;
+    Coords(unsigned int fst = 2, unsigned int snd = 2)
+    {
+        x = fst;
+        y = snd;
+    }
+};
+
 class Character {
     public:
         Character( string n ): name( n ) {};

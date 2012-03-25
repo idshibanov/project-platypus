@@ -18,7 +18,7 @@ class ClientSocketHandler;
 
 class GameScreen {
     private:
-
+        
         int _port, _server_sock;
         int _last_move;
 
@@ -28,7 +28,7 @@ class GameScreen {
         std::string _message;
         fd_set _readfds, _testfds;
         ClientSocketHandler* _serv_sh;
-
+        
     public:
         GameScreen( std::string n, int port = SERV_PORT );
         ~GameScreen();

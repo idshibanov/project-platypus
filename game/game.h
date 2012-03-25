@@ -16,11 +16,14 @@ struct MapCoords {
     uint _row;
     uint _col;
     uint _lvl;
-}
+    MapCoords(uint row, uint col, uint lvl)
+          : _row(row), _col(col), _lvl(lvl) {
+    }
+};
 
 class GameInstance {
     // TODO: multilevel map (using GameMap class instead of Floor)
-    Floor _map;
+    MapFloor _map;
     GameServer* _serv;
     std::vector<GamePlayer> _players;
     uint _start_row;
@@ -33,8 +36,7 @@ public:
     void AddPlayer(uint sockfd = 0);
     bool RemovePlayer(uint player_id);
     bool MovePlayer(uint player_id, uint direction);
-    MapCoords GetPlayerCoords(uint player_id);
-    GamePlayer* GetPlayer(uint player_id);
+    MapCoords GetPlayer(uint player_id);
 };
 
 #endif /* PLA_GAME_H */

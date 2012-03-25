@@ -5,7 +5,9 @@
 #include "player.h"
 #include "floor.h"
 
-uint GameCharacter::_id_count = 0;
+#include <stdio.h>
+
+uint GameCharacter::_id_count = 1;
 
 GameCharacter::GameCharacter(MapFloor* lvl, uint row, uint col)
 {
@@ -34,6 +36,7 @@ GameCharacter::GameCharacter(MapFloor* lvl, uint row, uint col, uint char_id)
     _row = row;
     _col = col;
     _char_id = char_id;
+    _floor->GetCell(_row, _col)->_player = _char_id;
 }
 
 GameCharacter::~GameCharacter()
@@ -46,36 +49,46 @@ uint GameCharacter::GetID()
     return _char_id;
 }
 
+uint GameCharacter::GetRow()
+{
+    return _row;
+}
+
+uint GameCharacter::GetCol()
+{
+    return _col;
+}
+
 bool GameCharacter::MoveChar(uint direction)
 {
     bool retval = false;
     switch (direction) {
     case 1:
-        retval = MoveChar(row+1, col-1);
+        retval = MoveChar(_row+1, _col-1);
         break;
     case 2:
-        retval = MoveChar(row+1, col);
+        retval = MoveChar(_row+1, _col);
         break;
     case 3:
-        retval = MoveChar(row+1, col+1);
+        retval = MoveChar(_row+1, _col+1);
         break;
     case 4:
-        retval = MoveChar(row, col-1);
+        retval = MoveChar(_row, _col-1);
         break;
     case 6:
-        retval = MoveChar(row, col+1);
+        retval = MoveChar(_row, _col+1);
         break;
     case 7:
-        retval = MoveChar(row-1, col-1);
+        retval = MoveChar(_row-1, _col-1);
         break;
     case 8:
-        retval = MoveChar(row-1, col);
+        retval = MoveChar(_row-1, _col);
         break;
     case 9:
-        retval = MoveChar(row-1, col+1);
+        retval = MoveChar(_row-1, _col+1);
         break;
     }
-    return false;
+    return retval;
 }
 
 bool GameCharacter::MoveChar(uint row, uint col)
@@ -84,9 +97,11 @@ bool GameCharacter::MoveChar(uint row, uint col)
     if (_floor->CellExists(row, col)) {
         MapCell* next = _floor->GetCell(row, col);
         if (next->_obj == CELL_FLOOR && next->_player == 0) {
+            _floor->GetCell(_row, _col)->_player = 0;
             _row = row;
             _col = col;
             next->_player = _char_id;
+            printf("Cell %d %d is busy by %d\n", _col, _row, _char_id);
             retval = true;
         }
     }
@@ -95,7 +110,7 @@ bool GameCharacter::MoveChar(uint row, uint col)
 
 void GameCharacter::CleanMap()
 {
-    _floor->GetCell(row, col)->_player = 0;
+    _floor->GetCell(_row, _col)->_player = 0;
 }
 
 // GamePlayer class implementation
@@ -115,6 +130,11 @@ GamePlayer::GamePlayer(MapFloor* lvl, uint row, uint col, uint sock_id, uint cha
 GamePlayer::~GamePlayer()
 {
 
+}
+
+uint GamePlayer::GetNetID()
+{
+    return _sock_id;
 }
 
 // GameNPC class implementation

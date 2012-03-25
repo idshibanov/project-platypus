@@ -51,7 +51,7 @@ public:
     bool RecvClientLogin(NetPacket* p);
     bool RecvClientMovement(NetPacket* p);
     bool SendMoveResponse(bool value);
-    bool SendCharData(int sockfd, Coords& coord);
+    bool SendCharData(int sockfd, MapCoords& coord);
 
     friend class ServerSocketArray;
 };

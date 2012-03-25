@@ -4,6 +4,7 @@
 #include "../core/defines.h"
 #include "../game/game.h"
 #include "server.h"
+#include "database.h"
 
 #include <string>
 #include <stdio.h>
@@ -27,14 +28,16 @@ GameServer::GameServer(int port)
     FD_ZERO(&_readfds);
     FD_ZERO(&_testfds);
 
-    _game = new GameInstance(this);
+    _game = new GameInstance(this, 5, 75);
     _client_sock = new ServerSocketArray(this, _game);
+    //_db = new DatabaseServer();
 }
 
 GameServer::~GameServer()
 {
     delete _game;
     delete _client_sock;
+    //delete _db;
 }
 
 bool GameServer::start_service()
@@ -261,12 +264,12 @@ void GameServer::broadcast(const char* str, int fd)
 
 void GameServer::broadcast_movement(int fd)
 {
-    Coords mvm = _game->GetPlayer(fd);
+    MapCoords mvm = _game->GetPlayer(fd);
     for (int fd_cur = _min_client_fd; fd_cur < _max_client_fd; fd_cur++) {
         if (FD_ISSET(fd_cur, &_readfds)) {
             if (fd_cur != fd) {
                 _client_sock->GetClient(fd_cur)->SendCharData(fd, mvm);
-                printf("Broadcast %d %d\n", mvm.x, mvm.y);
+                //printf("Broadcast %d %d, lvl %d\n", mvm._row, mvm._col, mvm._lvl);
             }
         }
     }

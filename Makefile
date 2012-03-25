@@ -6,10 +6,13 @@ CORE_SRC = ./core
 NET_SRC = ./net
 NC_SRC = ./ncurses
 SERVER_SRC = ./server
+GAME_SRC = ./game
 
 # Binaries
-server: server_main.o server.o packet.o socket.o server_socket.o
-	$(cc) $(OBJ_DEST)/server_main.o $(OBJ_DEST)/server.o $(OBJ_DEST)/packet.o $(OBJ_DEST)/socket.o $(OBJ_DEST)/server_socket.o -o $(BIN_DEST)/server
+server: server_main.o server.o packet.o socket.o server_socket.o game.o floor.o player.o
+	$(cc) $(OBJ_DEST)/server_main.o $(OBJ_DEST)/server.o $(OBJ_DEST)/packet.o $(OBJ_DEST)/socket.o \
+	$(OBJ_DEST)/server_socket.o $(OBJ_DEST)/game.o $(OBJ_DEST)/floor.o $(OBJ_DEST)/player.o        \
+	$(shell mysql_config --libs) -o $(BIN_DEST)/server
 
 nclient: nclient.o packet.o socket.o client_socket.o GameScreen.o MainMenu.o LoginMenu.o RegisterMenu.o SettingsMenu.o ScoresMenu.o GameMenu.o
 	$(cc) -g $(OBJ_DEST)/nclient.o $(OBJ_DEST)/MainMenu.o $(OBJ_DEST)/SettingsMenu.o $(OBJ_DEST)/ScoresMenu.o \
@@ -17,10 +20,23 @@ nclient: nclient.o packet.o socket.o client_socket.o GameScreen.o MainMenu.o Log
 
 # Server sources
 server_main.o: $(SERVER_SRC)/server_main.cpp $(CORE_SRC)/defines.h
-	$(cc) -o $(OBJ_DEST)/server_main.o -c $(SERVER_SRC)/server_main.cpp
+	$(cc) -o $(OBJ_DEST)/server_main.o $(shell mysql_config --cflags) -c $(SERVER_SRC)/server_main.cpp
 
 server.o: $(SERVER_SRC)/server.cpp $(SERVER_SRC)/server.h
-	$(cc) -o $(OBJ_DEST)/server.o -c $(SERVER_SRC)/server.cpp
+	$(cc) -o $(OBJ_DEST)/server.o $(shell mysql_config --cflags) -c $(SERVER_SRC)/server.cpp
+
+database.o: $(SERVER_SRC)/database.cpp $(SERVER_SRC)/database.h
+	$(cc) -o $(OBJ_DEST)/database.o $(shell mysql_config --cflags) -c $(SERVER_SRC)/database.cpp
+
+# Game sources
+game.o: $(GAME_SRC)/game.cpp $(GAME_SRC)/game.h
+	$(cc) -o $(OBJ_DEST)/game.o -c $(GAME_SRC)/game.cpp
+
+floor.o: $(GAME_SRC)/floor.cpp $(GAME_SRC)/floor.h
+	$(cc) -o $(OBJ_DEST)/floor.o -c $(GAME_SRC)/floor.cpp
+
+player.o: $(GAME_SRC)/player.cpp $(GAME_SRC)/player.h
+	$(cc) -o $(OBJ_DEST)/player.o -c $(GAME_SRC)/player.cpp
 
 # Client sources	
 nclient.o: $(NC_SRC)/nclient.cpp $(NC_SRC)/nclient.h
@@ -52,7 +68,7 @@ client_socket.o: $(NET_SRC)/client_socket.cpp $(NET_SRC)/client_socket.h
 	$(cc) -o $(OBJ_DEST)/client_socket.o -c $(NET_SRC)/client_socket.cpp
 
 server_socket.o: $(NET_SRC)/server_socket.cpp $(NET_SRC)/server_socket.h
-	$(cc) -o $(OBJ_DEST)/server_socket.o -c $(NET_SRC)/server_socket.cpp
+	$(cc) -o $(OBJ_DEST)/server_socket.o $(shell mysql_config --cflags) -c $(NET_SRC)/server_socket.cpp
 
 packet.o: $(NET_SRC)/packet.cpp $(NET_SRC)/packet.h
 	$(cc) -o $(OBJ_DEST)/packet.o -c $(NET_SRC)/packet.cpp

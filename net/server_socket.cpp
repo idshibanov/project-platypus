@@ -10,7 +10,7 @@
 ServerSocketHandler::ServerSocketHandler (int socket, GameServer* serv, GameInstance* game)
     : SocketHandler(socket)
 {
-    _status = STATUS_SERVER_OFFLINE;
+    _status = STATUS_SERVER_GAME_ACTIVE;
     _serv = serv;
     _game = game;
 }
@@ -101,8 +101,7 @@ bool ServerSocketHandler::SendChatMsg(const char* msg)
     NetPacket* p = new NetPacket(PACKET_SERVER_CHAT);
     bool retval = false;
 
-    if ( p->SendString(msg) )
-    {
+    if ( p->SendString(msg) ) {
         retval = this->SendPacket(p);
     }
 
@@ -121,18 +120,15 @@ bool ServerSocketHandler::RecvChatMsg(NetPacket* p)
     char* msg = new char[p->_size+1];
 
     // check if client is actually authorized to send this packet
-    if (0 /*_status != STATUS_SERVER_ACTIVE */) { }
-    else
-    {
-        if (p->RecvString(msg))
-        {
+    if (0 /*_status != STATUS_SERVER_ACTIVE */) { 
+    } else {
+        if (p->RecvString(msg)) {
             // got processed msg here
             string tmp(msg);
             _serv->broadcast( tmp.c_str(), _sockfd);
             _serv->log( tmp.insert( 0, "Client " ) );
             retval = true;
-        } else
-        {
+        } else {
             // printf("RecvString returned false\n");
         }
     }
@@ -175,14 +171,11 @@ bool ServerSocketHandler::RecvClientMovement(NetPacket* p)
     bool retval = false;
 
     unsigned int mvm = p->RecvUint();
-    if(_game->MovePlayer(_sockfd, mvm))
-    {
-        //printf("Client %d moved in direction %d\n", _sockfd, mvm);
+    if(_game->MovePlayer(_sockfd, mvm)) {
         SendMoveResponse(true);
         _serv->broadcast_movement(_sockfd);
         retval = true;
-    } else
-    {
+    } else {
         SendMoveResponse(false);
     }
 
@@ -194,14 +187,17 @@ bool ServerSocketHandler::SendMoveResponse(bool value)
 {
     NetPacket* p = new NetPacket(PACKET_SERVER_MOVE_RESPONSE);
     bool retval = false;
+    
+    // row/col and x/y pair are swapped
+    // TODO: fix it later
 
     if ( p->SendBool(value) ) {
         if ( value ) {
-            Coords coord = _game->GetPlayer(_sockfd);
-            if ( p->SendUint(coord.x) )
-                if ( p->SendUint(coord.y) )
-                    retval = this->SendPacket(p);
-
+            MapCoords coord = _game->GetPlayer(_sockfd);
+            if ( p->SendUint(coord._col) )
+                if ( p->SendUint(coord._row) )
+                    if ( p->SendUint(coord._lvl) )
+                        retval = this->SendPacket(p);
         }    
         retval = this->SendPacket(p);
     }
@@ -212,15 +208,16 @@ bool ServerSocketHandler::SendMoveResponse(bool value)
     return retval;
 }
 
-bool ServerSocketHandler::SendCharData(int sockfd, Coords& coord)
+bool ServerSocketHandler::SendCharData(int sockfd, MapCoords& coord)
 {
     NetPacket* p = new NetPacket(PACKET_SERVER_CHARDATA);
     bool retval = false;
 
     if ( p->SendUint(sockfd) )
-        if ( p->SendUint(coord.x) )
-            if ( p->SendUint(coord.y) )
-                retval = this->SendPacket(p);
+        if ( p->SendUint(coord._col) )
+            if ( p->SendUint(coord._row) )
+                if ( p->SendUint(coord._lvl) )
+                    retval = this->SendPacket(p);
 
     // important
     delete p;

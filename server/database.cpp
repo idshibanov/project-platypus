@@ -1,12 +1,15 @@
 #include "database.h"
 #include <my_global.h>
+#undef min
+#undef max
 #include <mysql.h>
 #include <string.h>
+#include <string>
 using namespace std;
 
 DatabaseServer::DatabaseServer(string host, string user, string password)
 {
-    _statement = null;
+    _statement = NULL;
     _conn = mysql_init(NULL);
     mysql_real_connect(_conn, host.c_str(), user.c_str(), password.c_str(),
         "test", 0, NULL, 0);
@@ -38,7 +41,7 @@ bool DatabaseServer::compare(string user_id, string password)
     }
     
     delete [] _statement;
-    _statement = null;
+    _statement = NULL;
     return retval;
 }
 
@@ -50,7 +53,7 @@ void DatabaseServer::update(string user_id, int score)
     mysql_query(_conn, _statement);
     
     delete [] _statement;
-    _statement = null;
+    _statement = NULL;
 }
 
 void DatabaseServer::insert(string user_id, string lastname, string firstname, string address)
@@ -63,6 +66,6 @@ void DatabaseServer::insert(string user_id, string lastname, string firstname, s
     mysql_query(_conn, _statement);
     
     delete [] _statement;
-    _statement = null;
+    _statement = NULL;
 }
 

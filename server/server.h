@@ -4,6 +4,7 @@
 #ifndef PLA_SERVER_H
 #define PLA_SERVER_H
 
+#include "database.h"
 #include "../game/game.h"
 #include "../net/server_socket.h"
 #include <sys/select.h>
@@ -22,6 +23,7 @@ class GameServer
 
     GameInstance* _game;              // DYNAMICALLY allocated, holds game data
     ServerSocketArray* _client_sock;  // DYNAMICALLY holds our clients
+    DatabaseServer* _db;
 
 public:
 
