@@ -65,11 +65,14 @@ void GameClient::init_curses()
     initscr();
     clear();
     keypad(stdscr,1);
-    
     noecho();
     cbreak();
-    //nonl();
     curs_set(0);
+    if ( LINES < 35 || COLS < 80 ) {
+    	mvaddstr( 4,4,"GAME REQUIRES MINIMUM OF 35 LINES and 80 COLUMNS" );
+    	getch();
+    	die();
+    }
     signal(SIGINT,(__sighandler_t)die);
 }
 

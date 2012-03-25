@@ -29,7 +29,8 @@ GameScreen::GameScreen( string playerName, int port ):
     _port( port ),
     _c( new Character( playerName ) ),
     _serv_sh( (ClientSocketHandler* )0 ),    
-   _last_move(0 )
+   _last_move(0 ),
+   _pr( new Prompt( ALPHANUMERIC_SYMBOLS ) )
 {};
 
 GameScreen::~GameScreen()
@@ -38,13 +39,15 @@ GameScreen::~GameScreen()
     delete _cw;
     if (_serv_sh)
         delete _serv_sh;
+    if (_pr)
+    	delete _pr;
 }
 
 void GameScreen::run_select()
 {
 
     int fd, nread, ch;
-    char buffer[1024];
+    string buffer;
 
     while (1) {
         _testfds = _readfds;
@@ -89,14 +92,9 @@ void GameScreen::run_select()
                         case 0x43:
                             mvprintw( LINES - 2, 2, _c->name.c_str() );
                             mvprintw( LINES - 2, _c->name.size() + 2, ": " );
-                            fflush( stdin );
-                            curs_set(1);
-                            echo();
-                            getstr( buffer );
-                            curs_set(0);
-                            noecho();
-                            if( buffer[0] != '\0' ) {
-                              _message = string( buffer );
+                            buffer = _pr->getMessage( _c->name.size() + 4, LINES - 2, COLS - ( _c->name.size() + 6 ) );
+                            if( !buffer.empty() ) {
+                              _message = buffer;
                               _message.insert( 0, ": " );
                               _message.insert( 0, _c->name );
                               _serv_sh->SendChatMsg(_message.c_str());

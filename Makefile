@@ -14,8 +14,8 @@ server: server_main.o server.o packet.o socket.o server_socket.o game.o floor.o 
 	$(OBJ_DEST)/server_socket.o $(OBJ_DEST)/game.o $(OBJ_DEST)/floor.o $(OBJ_DEST)/player.o        \
 	$(shell mysql_config --libs) -o $(BIN_DEST)/server
 
-nclient: nclient.o packet.o socket.o client_socket.o GameScreen.o MainMenu.o LoginMenu.o RegisterMenu.o SettingsMenu.o ScoresMenu.o GameMenu.o
-	$(cc) -g $(OBJ_DEST)/nclient.o $(OBJ_DEST)/MainMenu.o $(OBJ_DEST)/SettingsMenu.o $(OBJ_DEST)/ScoresMenu.o \
+nclient: nclient.o packet.o socket.o client_socket.o GameScreen.o MainMenu.o LoginMenu.o RegisterMenu.o SettingsMenu.o ScoresMenu.o GameMenu.o Prompt.o
+	$(cc) -g $(OBJ_DEST)/nclient.o $(OBJ_DEST)/MainMenu.o $(OBJ_DEST)/SettingsMenu.o $(OBJ_DEST)/Prompt.o $(OBJ_DEST)/ScoresMenu.o \
     $(OBJ_DEST)/RegisterMenu.o $(OBJ_DEST)/LoginMenu.o $(OBJ_DEST)/GameMenu.o $(OBJ_DEST)/packet.o $(OBJ_DEST)/socket.o $(OBJ_DEST)/client_socket.o $(OBJ_DEST)/GameScreen.o -lncurses -o $(BIN_DEST)/nclient
 
 # Server sources
@@ -62,6 +62,9 @@ ScoresMenu.o: $(NC_SRC)/menu/ScoresMenu.cpp $(NC_SRC)/menu/ScoresMenu.h
 
 GameMenu.o: $(NC_SRC)/menu/GameMenu.cpp $(NC_SRC)/menu/GameMenu.h
 	$(cc) -o $(OBJ_DEST)/GameMenu.o -c $(NC_SRC)/menu/GameMenu.cpp
+
+Prompt.o: $(NC_SRC)/tools/Prompt.cpp $(NC_SRC)/tools/Prompt.h
+	$(cc) -o $(OBJ_DEST)/Prompt.o -c $(NC_SRC)/tools/Prompt.cpp
 
 # Network-core
 client_socket.o: $(NET_SRC)/client_socket.cpp $(NET_SRC)/client_socket.h

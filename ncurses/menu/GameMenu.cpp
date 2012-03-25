@@ -4,6 +4,7 @@
 #include "GameMenu.h"
 #include "RegisterMenu.h"
 #include "SettingsMenu.h"
+#include "../tools/Prompt.h"
 #include "../game/GameScreen.h"
 
 GameMenu::GameMenu( GameClient* gc ): Menu( gc, 3 )
@@ -15,28 +16,28 @@ void GameMenu:: draw()
     box( stdscr, '|', '-' );
     drawTitle();
 
-    mvaddstr( LINES - 10, COLS/2 - 1 , "G A M E" );
-    mvaddstr( LINES - 9, COLS/2 - 1 , "*******" );
+    mvaddstr( LINES - 10, COLS/2 - 5 , "G A M E" );
+    mvaddstr( LINES - 9, COLS/2 - 5 , "*******" );
 
     if ( _selected == 0 )
-        mvaddstr( LINES - 8, COLS/2 - 2, "> START GAME <" );
+        mvaddstr( LINES - 8, COLS/2 - 8, "> START GAME <" );
     else
-        mvaddstr( LINES - 8, COLS/2, "START GAME" );
+        mvaddstr( LINES - 8, COLS/2 - 6, "START GAME" );
 
     if ( _selected == 1 )
-        mvaddstr( LINES - 7, COLS/2 - 2, "> HIGH SCORES <" );
+        mvaddstr( LINES - 7, COLS/2 - 8, "> HIGH SCORES <" );
     else
-        mvaddstr( LINES - 7, COLS/2, "HIGH SCORES" );
+        mvaddstr( LINES - 7, COLS/2 - 6, "HIGH SCORES" );
 
     if ( _selected == 2 )
-        mvaddstr( LINES - 6, COLS/2 - 2, "> SETTINGS <" );
+        mvaddstr( LINES - 6, COLS/2 - 8, "> SETTINGS <" );
     else
-        mvaddstr( LINES - 6, COLS/2, "SETTINGS" );
+        mvaddstr( LINES - 6, COLS/2 - 6, "SETTINGS" );
 
     if ( _selected == 3 )
-        mvaddstr( LINES - 5, COLS/2 - 2, "> BACK <" );
+        mvaddstr( LINES - 5, COLS/2 - 8, "> BACK <" );
     else
-        mvaddstr( LINES - 5, COLS/2, "BACK" );
+        mvaddstr( LINES - 5, COLS/2 - 6, "BACK" );
     refresh();
 };
 
@@ -44,8 +45,12 @@ Menu* GameMenu::execute()
 {
 
     if ( _selected == 0 ) {        
-        // start a game session.        
-        GameScreen gs( "Chris" );
+        // start a game session. 
+        // Temporary... just for testing purposes
+        Prompt p( ALPHANUMERIC );
+        mvaddstr( LINES - 8, COLS / 2 + 5, "Username: " );
+        std::string str = p.getMessage( COLS / 2 + 15, LINES - 8, 14 );        
+        GameScreen gs( str );
         gs.net_connect();
         return new GameMenu( _gc );
     } else if ( _selected == 1 ) {
