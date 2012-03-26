@@ -1,6 +1,7 @@
 // Project Platypus
-// server.cpp - implements GameServer class & holds main()
+// server.cpp - implements GameServer class
 
+#include "../core/config.h"
 #include "../core/defines.h"
 #include "../game/game.h"
 #include "server.h"
@@ -27,17 +28,22 @@ GameServer::GameServer(int port)
 
     FD_ZERO(&_readfds);
     FD_ZERO(&_testfds);
+    
+    ServerConfig conf;
+    string db_host(conf.GetSetting("db_host"));
+    string db_user(conf.GetSetting("db_user"));
+    string db_pass(conf.GetSetting("db_pass"));
 
-    _game = new GameInstance(this, 5, 75);
+    _game = new GameInstance(this, 15, 78);
     _client_sock = new ServerSocketArray(this, _game);
-    //_db = new DatabaseServer();
+    _db = new DatabaseServer(db_host, db_user, db_pass);
 }
 
 GameServer::~GameServer()
 {
     delete _game;
     delete _client_sock;
-    //delete _db;
+    delete _db;
 }
 
 bool GameServer::start_service()
@@ -186,6 +192,7 @@ bool GameServer::accept_client()
             _max_client_fd = client_fd + 1;
 
         _game->AddPlayer(client_fd);
+        broadcast_movement(client_fd);
 
         // TODO: replace with proper log function
         printf("adding client on fd %d\n", client_fd);

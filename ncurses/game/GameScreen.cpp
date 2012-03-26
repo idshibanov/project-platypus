@@ -174,16 +174,17 @@ void GameScreen::drawGameScreen()
 
 void GameScreen::drawCharacters()
 {
-
+    // temp fix: add +1 to coordinates to bypass screen border
+    
     //player
-    move( _c->y, _c->x );
+    move( _c->y+1, _c->x+1 );
     addch( 'X' );
 
     if ( _players.size() > 0 ) {
         //other players
         vector<Character>::iterator vi;
         for ( vi = _players.begin(); vi < _players.end(); vi++ ) {
-            move( vi->y, vi->x );
+            move( vi->y+1, vi->x+1 );
             addch( 'X' );
         }
     }

@@ -1,4 +1,4 @@
-all: clean dist server nclient remove_obj
+all: clean dist server nclient 
 cc=c++
 BIN_DEST = ./dist
 OBJ_DEST = ./dist
@@ -9,14 +9,17 @@ SERVER_SRC = ./server
 GAME_SRC = ./game
 
 # Binaries
-server: server_main.o server.o packet.o socket.o server_socket.o game.o floor.o player.o
+server: server_main.o packet.o socket.o server_socket.o config.o database.o \
+game.o floor.o player.o server.o 
 	$(cc) $(OBJ_DEST)/server_main.o $(OBJ_DEST)/server.o $(OBJ_DEST)/packet.o $(OBJ_DEST)/socket.o \
 	$(OBJ_DEST)/server_socket.o $(OBJ_DEST)/game.o $(OBJ_DEST)/floor.o $(OBJ_DEST)/player.o        \
-	$(shell mysql_config --libs) -o $(BIN_DEST)/server
+	$(OBJ_DEST)/config.o $(shell mysql_config --libs) -o $(BIN_DEST)/server
 
-nclient: nclient.o packet.o socket.o client_socket.o GameScreen.o MainMenu.o LoginMenu.o RegisterMenu.o SettingsMenu.o ScoresMenu.o GameMenu.o Prompt.o
+nclient: nclient.o packet.o socket.o client_socket.o GameScreen.o MainMenu.o LoginMenu.o RegisterMenu.o SettingsMenu.o \
+ScoresMenu.o GameMenu.o Prompt.o
 	$(cc) -g $(OBJ_DEST)/nclient.o $(OBJ_DEST)/MainMenu.o $(OBJ_DEST)/SettingsMenu.o $(OBJ_DEST)/Prompt.o $(OBJ_DEST)/ScoresMenu.o \
-    $(OBJ_DEST)/RegisterMenu.o $(OBJ_DEST)/LoginMenu.o $(OBJ_DEST)/GameMenu.o $(OBJ_DEST)/packet.o $(OBJ_DEST)/socket.o $(OBJ_DEST)/client_socket.o $(OBJ_DEST)/GameScreen.o -lncurses -o $(BIN_DEST)/nclient
+    $(OBJ_DEST)/RegisterMenu.o $(OBJ_DEST)/LoginMenu.o $(OBJ_DEST)/GameMenu.o $(OBJ_DEST)/packet.o $(OBJ_DEST)/socket.o \
+    $(OBJ_DEST)/client_socket.o $(OBJ_DEST)/GameScreen.o -lncurses -o $(BIN_DEST)/nclient
 
 # Server sources
 server_main.o: $(SERVER_SRC)/server_main.cpp $(CORE_SRC)/defines.h
@@ -27,6 +30,10 @@ server.o: $(SERVER_SRC)/server.cpp $(SERVER_SRC)/server.h
 
 database.o: $(SERVER_SRC)/database.cpp $(SERVER_SRC)/database.h
 	$(cc) -o $(OBJ_DEST)/database.o $(shell mysql_config --cflags) -c $(SERVER_SRC)/database.cpp
+
+config.o: $(CORE_SRC)/config.cpp $(CORE_SRC)/config.h
+	$(cc) -o $(OBJ_DEST)/config.o -c $(CORE_SRC)/config.cpp
+	
 
 # Game sources
 game.o: $(GAME_SRC)/game.cpp $(GAME_SRC)/game.h

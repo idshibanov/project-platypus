@@ -7,18 +7,8 @@
 #include <string>
 using namespace std;
 
-DatabaseServer::DatabaseServer(string host, string user, string password)
-{
-    _statement = NULL;
-    _conn = mysql_init(NULL);
-    mysql_real_connect(_conn, host.c_str(), user.c_str(), password.c_str(),
-        "test", 0, NULL, 0);
-}
-
-DatabaseServer::~DatabaseServer()
-{
-    mysql_close(_conn);
-}
+//DatabaseServer::DatabaseServer(string host, string user, string password)
+//DatabaseServer::~DatabaseServer()
 
 bool DatabaseServer::compare(string user_id, string password)
 {

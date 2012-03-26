@@ -101,7 +101,7 @@ bool GameCharacter::MoveChar(uint row, uint col)
             _row = row;
             _col = col;
             next->_player = _char_id;
-            printf("Cell %d %d is busy by %d\n", _col, _row, _char_id);
+            //printf("Cell %d %d is busy by %d\n", _col, _row, _char_id);
             retval = true;
         }
     }
