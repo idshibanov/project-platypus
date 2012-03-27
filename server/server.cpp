@@ -35,8 +35,8 @@ GameServer::GameServer(int port)
     string db_pass(conf.GetSetting("db_pass"));
 
     _game = new GameInstance(this, 15, 78);
-    _client_sock = new ServerSocketArray(this, _game);
     _db = new DatabaseServer(db_host, db_user, db_pass);
+    _client_sock = new ServerSocketArray(this, _game, _db);
 }
 
 GameServer::~GameServer()

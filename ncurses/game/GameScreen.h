@@ -36,7 +36,7 @@ class GameScreen {
         ~GameScreen();
         void run_select();
         // Network related memebers
-        bool net_connect();
+        bool net_connect(std::string pwd);
 
         // Game related members
         void init_game();

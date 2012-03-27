@@ -125,7 +125,7 @@ void GameScreen::init_game()
     
 }
 
-bool GameScreen::net_connect()
+bool GameScreen::net_connect(string pwd)
 {
     struct addrinfo* ailist;
     getaddrinfo(SERV_IP, NULL, NULL, &ailist);
@@ -135,15 +135,18 @@ bool GameScreen::net_connect()
 
     if( ( _server_sock = socket( AF_INET, SOCK_STREAM, 0 ) ) == -1 ) {
         perror( "socket call failed" );
-        exit( 1 );
+        //exit( 1 );
+        return false;
     }
    
     if( connect( _server_sock, ( sockaddr* ) server, sizeof(sockaddr_in) ) == -1 ) {
         perror( "connect call failed" );
-        exit( 1 );
+        //exit( 1 );
+        return false;
     }
 
     _serv_sh = new ClientSocketHandler(_server_sock, this);
+    _serv_sh->SendAuthRequest(_c->name, pwd);
 
     FD_ZERO(&_readfds);
     FD_SET(_server_sock, &_readfds);

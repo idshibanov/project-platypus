@@ -7,12 +7,13 @@
 #include "server_socket.h"
 #include <stdio.h>
 
-ServerSocketHandler::ServerSocketHandler (int socket, GameServer* serv, GameInstance* game)
+ServerSocketHandler::ServerSocketHandler (int socket, GameServer* serv, GameInstance* game, DatabaseServer* db)
     : SocketHandler(socket)
 {
-    _status = STATUS_SERVER_GAME_ACTIVE;
+    _status = STATUS_SERVER_CONNECTED;
     _serv = serv;
     _game = game;
+    _db = db;
 }
 
 ServerSocketHandler::~ServerSocketHandler()
@@ -83,10 +84,14 @@ bool ServerSocketHandler::HandlePacket(NetPacket* p)
         }
         break;
     case PACKET_CLIENT_MOVE_REQUEST:
-        retval = this->RecvClientMovement(p);
+        if (_status == STATUS_SERVER_GAME_ACTIVE) {
+            retval = this->RecvClientMovement(p);
+        }
         break;
     case PACKET_CLIENT_CHAT:
-        retval = this->RecvChatMsg(p);
+        if (_status == STATUS_SERVER_GAME_ACTIVE) {
+            retval = this->RecvChatMsg(p);
+        }
         break;
     case PACKET_CLIENT_FILE:
         retval = this->RecvFile(p);
@@ -151,15 +156,26 @@ bool ServerSocketHandler::RecvClientLogin(NetPacket* p)
     // DEBUG: it is not a null pointer
     assert(p != (NetPacket *)0);
 
-    bool retval = false;   
-    char msg[p->_size];
-    p->RecvString(msg);
-
-    // TODO: login system
-
-    _status = STATUS_SERVER_AUTHORIZED;
-    retval = true;
-
+    bool retval = false;
+    char usr[p->_size+1];
+    char pwd[p->_size+1];
+    // check if client is actually authorized to send this packet
+    if (p->RecvString(usr)) {
+        if (p->RecvString(pwd)) {
+            retval = true;
+            string log_tmp( usr );
+            log_tmp.insert( 0, "Client " );
+            if (_db->compare(string(usr), string(pwd))) {
+                SendAck(PACKET_SERVER_AUTH_RESPONSE, true);
+                //_status = STATUS_SERVER_AUTHORIZED;
+                _status = STATUS_SERVER_GAME_ACTIVE;
+                _serv->log( log_tmp.append(" logged in!") );
+            } else {
+                SendAck(PACKET_SERVER_AUTH_RESPONSE, false);  
+                _serv->log( log_tmp.append(" failed to log in") );              
+            }
+        }
+    }
     return retval;   
 }
 
@@ -228,11 +244,12 @@ bool ServerSocketHandler::SendCharData(int sockfd, MapCoords& coord)
 
 // Implementation of ServerSocketArray class
 
-ServerSocketArray::ServerSocketArray(GameServer* serv, GameInstance* game)
+ServerSocketArray::ServerSocketArray(GameServer* serv, GameInstance* game, DatabaseServer* db)
 {
     _length = 0;
     _serv = serv;
     _game = game;
+    _db = db;
 }
 
 ServerSocketArray::~ServerSocketArray()
@@ -251,16 +268,14 @@ bool ServerSocketArray::AddClient(int socket)
     
     // TODO: rework according to ver.2
 
-    if (socket < MIN_CLIENT_SOCKFD) { }
-    else if ( _length < MAX_CLIENTS )
-    {
-        _client_sock[_length] = new ServerSocketHandler(socket, _serv, _game);
+    if (socket < MIN_CLIENT_SOCKFD) { 
+    } else if ( _length < MAX_CLIENTS ) {
+        _client_sock[_length] = new ServerSocketHandler(socket, _serv, _game, _db);
         _client_sock[_length]->SendAck(PACKET_SERVER_WELCOME);
         _length++;
         retval = true;
-    } else 
-    {
-        ServerSocketHandler tmp(socket, _serv, _game);
+    } else {
+        ServerSocketHandler tmp(socket, _serv, _game, _db);
         tmp.SendAck(PACKET_SERVER_FULL);
     }
 

@@ -2,6 +2,7 @@
 // config.cpp - implements ServerConfig class
 
 #include "config.h"
+#include <stdlib.h>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -14,6 +15,11 @@ ServerConfig::ServerConfig()
     char buf[256];
     string key, val, line;
     size_t found;
+    
+    if (!ifs.good()) {
+        perror("Can't find config file");
+        exit(1);
+    }
 
     while (ifs.good()) {
         ifs.getline(buf, 256);

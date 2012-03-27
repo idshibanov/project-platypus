@@ -13,7 +13,7 @@ server: server_main.o packet.o socket.o server_socket.o config.o database.o \
 game.o floor.o player.o server.o 
 	$(cc) $(OBJ_DEST)/server_main.o $(OBJ_DEST)/server.o $(OBJ_DEST)/packet.o $(OBJ_DEST)/socket.o \
 	$(OBJ_DEST)/server_socket.o $(OBJ_DEST)/game.o $(OBJ_DEST)/floor.o $(OBJ_DEST)/player.o        \
-	$(OBJ_DEST)/config.o $(shell mysql_config --libs) -o $(BIN_DEST)/server
+	$(OBJ_DEST)/config.o $(OBJ_DEST)/database.o $(shell mysql_config --libs) -o $(BIN_DEST)/server
 
 nclient: nclient.o packet.o socket.o client_socket.o GameScreen.o MainMenu.o LoginMenu.o RegisterMenu.o SettingsMenu.o \
 ScoresMenu.o GameMenu.o Prompt.o

@@ -10,7 +10,7 @@
 
 ClientSocketHandler::ClientSocketHandler(int socket, GameScreen* gs) : SocketHandler(socket)
 {
-   _status = STATUS_CLIENT_GAME_ACTIVE;
+   _status = STATUS_CLIENT_CONNECTED;
    _gs = gs;
 }
 
@@ -55,7 +55,8 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
     case PACKET_SERVER_AUTH_RESPONSE:
         if (_status == STATUS_CLIENT_CONNECTED ) {
             if (p->RecvBool()) {
-                _status = STATUS_CLIENT_AUTHORIZED;
+                //_status = STATUS_CLIENT_AUTHORIZED;
+                _status = STATUS_CLIENT_GAME_ACTIVE;
             } else {
                 // TODO: relogin
             }
@@ -140,7 +141,7 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
         break;
     case PACKET_SERVER_CHAT:
         // should be = STATUS_CLIENT_GAME_ACTIVE or JOINED
-        if (_status < STATUS_CLIENT_END ) { 
+        if (_status == STATUS_CLIENT_GAME_ACTIVE ) { 
             retval = this->RecvChatMsg(p);
         }         
         break;
@@ -192,6 +193,23 @@ bool ClientSocketHandler::RecvChatMsg(NetPacket* p)
         retval = true;
     }
     delete [] msg;
+    return retval;
+}
+
+bool ClientSocketHandler::SendAuthRequest(std::string usr, std::string pwd)
+{
+    NetPacket* p = new NetPacket(PACKET_CLIENT_AUTH_REQUEST);
+    bool retval = false;
+
+    if ( p->SendString(usr.c_str()) ) {
+        if ( p->SendString(pwd.c_str()) ) {
+            retval = this->SendPacket(p);
+        }
+    }
+
+    // important
+    delete p;
+
     return retval;
 }
 

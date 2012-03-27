@@ -48,10 +48,17 @@ Menu* GameMenu::execute()
         // start a game session. 
         // Temporary... just for testing purposes
         Prompt p( ALPHANUMERIC );
-        mvaddstr( LINES - 8, COLS / 2 + 5, "Username: " );
-        std::string str = p.getMessage( COLS / 2 + 15, LINES - 8, 14 );        
+        //mvaddstr( LINES - 8, COLS / 2 + 5, "Username: " );
+        //std::string str = p.getMessage( COLS / 2 + 15, LINES - 8, 14 );          
+        mvaddstr( LINES - 13, COLS / 2 - 14, "Username: " );
+        std::string str = p.getMessage( COLS / 2 - 4, LINES - 13, 14 );
+        
+        Prompt p2( ALPHANUMERIC );
+        mvaddstr( LINES - 12, COLS / 2 - 14, "Password: " );
+        std::string str2 = p2.getMessage( COLS / 2 - 4, LINES - 12, 14 );
+        
         GameScreen gs( str );
-        gs.net_connect();
+        gs.net_connect( str2 );
         return new GameMenu( _gc );
     } else if ( _selected == 1 ) {
         return new ScoresMenu( _gc );

@@ -35,11 +35,12 @@ class ServerSocketHandler : public SocketHandler
     // client is associated with this server
     GameServer* _serv;
     GameInstance* _game;
+    DatabaseServer* _db;
 
     // private constructor, so only ServerSocketArray
     // can create an instance of ServerSocketHandler
 
-    ServerSocketHandler(int socket, GameServer* serv, GameInstance* game);
+    ServerSocketHandler(int socket, GameServer* serv, GameInstance* game, DatabaseServer* db);
 
 public:
 
@@ -67,10 +68,11 @@ class ServerSocketArray
     // array is associated with this server
     GameServer* _serv;
     GameInstance* _game;
+    DatabaseServer* _db;
 
 public:
     // default constructor of an empty array
-    ServerSocketArray(GameServer* serv, GameInstance* game);
+    ServerSocketArray(GameServer* serv, GameInstance* game, DatabaseServer* db);
 
     // deletes SocketHandlers
     ~ServerSocketArray();
