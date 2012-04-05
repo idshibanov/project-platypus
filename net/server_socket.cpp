@@ -10,7 +10,7 @@
 ServerSocketHandler::ServerSocketHandler (int socket, GameServer* serv, GameInstance* game, DatabaseServer* db)
     : SocketHandler(socket)
 {
-    _status = STATUS_SERVER_CONNECTED;
+    _status = STATUS_SERVER_GAME_ACTIVE;
     _serv = serv;
     _game = game;
     _db = db;
@@ -29,7 +29,7 @@ bool ServerSocketHandler::HandlePacket(NetPacket* p)
     //printf("got %d bytes, packet %d\n", p->_size, p->_buffer[p->_pos]);
     bool retval = false;
 
-    switch(p->_buffer[p->_pos++]) {
+    switch(p->_pos) {
     
     case PACKET_CLIENT_CONNECT:
         if ( _status == STATUS_SERVER_OFFLINE ) {
@@ -94,7 +94,7 @@ bool ServerSocketHandler::HandlePacket(NetPacket* p)
         }
         break;
     case PACKET_CLIENT_FILE:
-        retval = this->RecvFile(p);
+        //retval = this->RecvFile(p);
         break;    
     }
 
@@ -165,7 +165,9 @@ bool ServerSocketHandler::RecvClientLogin(NetPacket* p)
             retval = true;
             string log_tmp( usr );
             log_tmp.insert( 0, "Client " );
-            if (_db->compare(string(usr), string(pwd))) {
+            // HACK: disable DB
+            //if (_db->compare(string(usr), string(pwd))) {
+            if (true) {
                 SendAck(PACKET_SERVER_AUTH_RESPONSE, true);
                 //_status = STATUS_SERVER_AUTHORIZED;
                 _status = STATUS_SERVER_GAME_ACTIVE;

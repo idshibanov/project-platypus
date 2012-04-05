@@ -54,12 +54,12 @@ bool SocketHandler::SendPacket(NetPacket* p)
     if (p != (NetPacket *)0) {
         p->PrepareToSend();
 
-        snd = send(_sockfd, (const void*) &p->_buffer[0], p->_size, 0);
+        snd = send(_sockfd, (const void*) p->_buffer.str().data(), p->_size, 0);
         if ( snd == p->_size) {
             // EVENT: Packet sent succesfully
             retval = true;
 
-            // printf("SendPacket passed, size: %d\n", p->_size);
+            printf("Sent %d bytes.\n", snd);
         }
     }
 
@@ -78,14 +78,14 @@ bool SocketHandler::RecvPacket()
     uint psize = sizeof(PacketSize);
     NetPacket* p = new NetPacket(this);
 
-    if (recv(_sockfd, (void*) &p->_buffer[0], psize, 0) == psize ) {
-        p->ReadSize();
-        if (recv(_sockfd, (void*) &p->_buffer[psize], p->_size - psize, 0) == p->_size - psize) {
-            // printf("RecvPacket passed packet to HandlePacket\n");
-            p->_pos = psize;
-            retval = this->HandlePacket(p);
-        }
-    }
+    //if (recv(_sockfd, (void*) &p->_buffer[0], psize, 0) == psize ) {
+    //    p->ReadSize();
+    //    if (recv(_sockfd, (void*) &p->_buffer[psize], p->_size - psize, 0) == p->_size - psize) {
+    //        // printf("RecvPacket passed packet to HandlePacket\n");
+    //        p->_pos = psize;
+    //        retval = this->HandlePacket(p);
+    //    }
+    //}
 
     // important
     delete p;
@@ -107,51 +107,5 @@ bool SocketHandler::SendAck(NetPacketType ack, bool val)
 
     return retval;
 }
-
-bool SocketHandler::SendFile(const char* msg)
-{
-    // not working properly yet
-
-    NetPacket* p = new NetPacket(PACKET_CLIENT_FILE);
-    bool retval = false;
-    int line;
-
-    p->SendString(msg);
-    // loaded something
-    retval = this->SendPacket(p);
-
-    // important
-    delete p;
-
-    return retval;
-}
-
-bool SocketHandler::RecvFile(NetPacket* p)
-{
-    // not working properly yet
-
-    // DEBUG: it is not a null pointer
-    assert(p != (NetPacket *)0);
-
-    bool retval = false;
-    char msg[p->_size+1];
-
-    // check if client is actually authorized to send this packet
-    if (0 /*_status != STATUS_ACTIVE */) {
-    } else {
-        printf("got packet, size: %d\n", p->_size);
-        write(STDOUT_FILENO, &p->_buffer[p->_pos], p->_size);
-
-        /* while (p->RecvString(msg, strlen((const char *) p->_buffer[p->_pos])))
-        {
-        p->_pos += strlen((const char *) p->_buffer[p->_pos]);
-        printf("%s", msg);
-        } */
-
-        retval = true;
-    }
-    return retval;
-}
-
 
 

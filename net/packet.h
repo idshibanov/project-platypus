@@ -5,6 +5,8 @@
 #define PLA_NET_PACKET_H
 
 #include "../core/datatypes.h"
+#include <iostream>
+#include <sstream>
 
 class SocketHandler;
 
@@ -72,7 +74,7 @@ class NetPacket
     PacketSize _pos;
 
     // pointer to DYNAMICALLY allocated data that actually will be send
-    uchar* _buffer;
+    std::stringstream _buffer;
 
     // pointer used for queuing packets
     NetPacket* _next;

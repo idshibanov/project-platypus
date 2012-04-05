@@ -5,8 +5,6 @@
 #include "../core/bitmath.h"
 #include "packet.h"
 
-#include <string.h>
-#include <stdio.h>
 
 NetPacket::NetPacket(SocketHandler* sock)
 {
@@ -17,56 +15,43 @@ NetPacket::NetPacket(SocketHandler* sock)
     _next = (NetPacket *)0;
     _size = 0;
     _pos = 0;
-    _buffer = new uchar[MAX_PACKET_SIZE];
 }
 
 NetPacket::NetPacket(NetPacketType type)
 {
     _read_sock = (SocketHandler *)0;
     _next = (NetPacket *)0;
-    _size = sizeof(PacketSize);
     _pos = 0;
-    _buffer = new uchar[MAX_PACKET_SIZE];
-    _buffer[_size++] = type;
+    _buffer << type << ';';
+    _size = _buffer.str().size();
 }
 
 NetPacket::~NetPacket()
 {
-    delete [] _buffer;
+
 }
 
 void NetPacket::PrepareToSend()
 {
-    //printf("sent %d bytes\n", _size);
     _pos = 0;
 
-    // implement standart realloc function
-    int i;
-    uchar* tmp = new uchar[_size];
-
-    for(i = 0; i < _size; i++)
-        tmp[i] = _buffer[i];
-    delete [] _buffer;
-    _buffer = tmp;
-
-    // test both methods:
-
-    // 1 - to retrieve size by bytes
-    // uchar* getsize = (uchar *)&_size;
-
-    // _buffer[0] = getsize[0];
-    // _buffer[1] = getsize[1];
-
-    // 2 - using bitmath
-
-    _buffer[0] = GB(_size, 0);
-    _buffer[1] = GB(_size, 8);
+    std::stringstream ss (std::stringstream::in | std::stringstream::out);
+    _size = _buffer.str().size();
+    std::cout << "1Size: " << _size << std::endl;
+    ss << _size << ';';
+    _size += ss.str().size();
+    std::cout << "2Size: " << _size << std::endl;
+    ss.str("");
+    ss << _size << ';';
+    _buffer.str( ss.str() + _buffer.str() );
+    
+    std::cout << _buffer.str() << std::endl;
 }
 
 void NetPacket::ReadSize()
 {
-    _size  = (PacketSize)_buffer[0];
-    _size += (PacketSize)_buffer[1] << 8;
+//    _size  = (PacketSize)_buffer[0];
+//    _size += (PacketSize)_buffer[1] << 8;
 }
 
 bool NetPacket::SendBool(bool data)
@@ -86,7 +71,8 @@ bool NetPacket::SendUchar(uchar data)
     // return false if we exceed max packet size
     if (_size + sizeof(data) > MAX_PACKET_SIZE) {
     } else {
-        _buffer[_size++] = data;
+        _buffer << data << ";";
+        _size = _buffer.str().size();
         retval = true;
     }
 
@@ -98,7 +84,7 @@ uchar NetPacket::RecvUchar()
     // DEBUG: check if there is data left
     assert(_pos < _size);
 
-    return (_pos < _size) ? _buffer[_pos++] : 0;
+    return 0; //(_pos < _size) ? _buffer[_pos++] : 0;
 }
 
 bool NetPacket::SendUint(uint data)
@@ -106,12 +92,10 @@ bool NetPacket::SendUint(uint data)
     bool retval = false;
 
     // return false if we exceed max packet size
-    if (_size + sizeof(data) > MAX_PACKET_SIZE) { 
+    if (_size + sizeof(data) > MAX_PACKET_SIZE) {
     } else {
-        _buffer[_size++] = GB(data, 0);
-        _buffer[_size++] = GB(data, 8);
-        _buffer[_size++] = GB(data, 16);
-        _buffer[_size++] = GB(data, 24);
+        _buffer << data << ";";
+        _size = _buffer.str().size();
         retval = true;
     }
 
@@ -122,17 +106,17 @@ uint NetPacket::RecvUint()
 {
 
     // DEBUG: check if there is data left
-    assert(_pos < _size);
+    //assert(_pos < _size);
 
-    uint retval;
+    uint retval = 0;
 
     //retval = (uint)_buffer[_pos++];
-    //retval = (uint)_buffer[_pos++] << 8;
-    //retval = (uint)_buffer[_pos++] << 16;
-    //retval = (uint)_buffer[_pos++] << 24;
+    //retval += (uint)_buffer[_pos++] << 8;
+    //retval += (uint)_buffer[_pos++] << 16;
+    //retval += (uint)_buffer[_pos++] << 24;
 
-    retval = (uint)_buffer[_pos];
-    _pos += sizeof(uint);
+    //retval = (uint)_buffer[_pos];
+    //_pos += sizeof(uint);
 
     return retval;
 }
@@ -140,16 +124,17 @@ uint NetPacket::RecvUint()
 bool NetPacket::SendString(const char* data)
 {
     // DEBUG: check if there is data
-    assert(data != (const char*)0);
+    //assert(data != (const char*)0);
 
     bool retval = false;
 
-    // return false if string is longer than space left in a packet
-    if (_size + strlen(data) + 1 > MAX_PACKET_SIZE) { 
+
+    if (_size + sizeof(data) > MAX_PACKET_SIZE) {
     } else {
-        while ((_buffer[_size++] = *data++) != '\0');
-        _buffer[_size] = '\0';
-        // _size--;
+        _buffer << data;
+        //str.erase(str.find_last_not_of(" \n\r\t")+1);
+        _buffer << ";";
+        _size = _buffer.str().size();
         retval = true;
     }
 
@@ -159,13 +144,13 @@ bool NetPacket::SendString(const char* data)
 bool NetPacket::RecvString(char* buf)
 {
     // DEBUG: passed string is not null
-    assert(buf != (char *)0);
+    //assert(buf != (char *)0);
 
     // DEBUG: ensure that we are reading, not writing
-    assert(_read_sock != (SocketHandler *)0);
+    //assert(_read_sock != (SocketHandler *)0);
 
     bool retval = false;
-    uint i;
+    //uint i;
 
     // strcpy works buggy, replaced with plain while loop
 
@@ -173,11 +158,11 @@ bool NetPacket::RecvString(char* buf)
     //strcpy(buf, (const char*)&_buffer[_pos]);
     //_pos += i;
 
-    int k = 0;
-    while ((buf[k++] = _buffer[_pos++]) != '\0' && _pos < _size);
-    buf[k++] = '\0';
+    //int k = 0;
+    //while ((buf[k++] = _buffer[_pos++]) != '\0' && _pos < _size);
+    //buf[k++] = '\0';
 
-    retval = true;
+    //retval = true;
 
     return retval;
 }

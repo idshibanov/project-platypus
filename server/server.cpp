@@ -29,13 +29,14 @@ GameServer::GameServer(int port)
     FD_ZERO(&_readfds);
     FD_ZERO(&_testfds);
     
-    ServerConfig conf;
-    string db_host(conf.GetSetting("db_host"));
-    string db_user(conf.GetSetting("db_user"));
-    string db_pass(conf.GetSetting("db_pass"));
+    // HACK: disable DB
+    //ServerConfig conf;
+    //string db_host(conf.GetSetting("db_host"));
+    //string db_user(conf.GetSetting("db_user"));
+    //string db_pass(conf.GetSetting("db_pass"));
 
     _game = new GameInstance(this, 15, 78);
-    _db = new DatabaseServer(db_host, db_user, db_pass);
+    //_db = new DatabaseServer(db_host, db_user, db_pass);
     _client_sock = new ServerSocketArray(this, _game, _db);
 }
 
@@ -43,7 +44,7 @@ GameServer::~GameServer()
 {
     delete _game;
     delete _client_sock;
-    delete _db;
+    //delete _db;
 }
 
 bool GameServer::start_service()

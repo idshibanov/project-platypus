@@ -63,11 +63,6 @@ public:
     // pure virtual function, get ack
     virtual bool RecvAck(NetPacket* p) = 0;
 
-    // send file to a client, demo-function
-    bool SendFile(const char* msg);
-
-    // recover and print file from a packet, demo-function
-    bool RecvFile(NetPacket* p);
 
 };
 

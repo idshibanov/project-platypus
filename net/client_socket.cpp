@@ -10,7 +10,7 @@
 
 ClientSocketHandler::ClientSocketHandler(int socket, GameScreen* gs) : SocketHandler(socket)
 {
-   _status = STATUS_CLIENT_CONNECTED;
+   _status = STATUS_CLIENT_GAME_ACTIVE;
    _gs = gs;
 }
 
@@ -28,7 +28,7 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
 
     bool retval = false;
 
-    switch(p->_buffer[p->_pos++]) {
+    switch(p->_pos) {
     
     case PACKET_SERVER_FULL:
         if (_status == STATUS_CLIENT_OFFLINE ) {
@@ -146,7 +146,7 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
         }         
         break;
     case PACKET_SERVER_FILE:
-        retval = this->RecvFile(p);
+        //retval = this->RecvFile(p);
         break;      
     }
 
