@@ -28,7 +28,7 @@ bool ClientSocketHandler::HandlePacket(NetPacket* p)
 
     bool retval = false;
 
-    switch(p->_pos) {
+    switch(p->_type) {
     
     case PACKET_SERVER_FULL:
         if (_status == STATUS_CLIENT_OFFLINE ) {

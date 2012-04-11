@@ -10,6 +10,7 @@
 #include "socket.h"
 
 #include <stdio.h>
+#include <iostream>
 #include <string.h>
 
 // Implementation of SocketHandler class
@@ -58,8 +59,6 @@ bool SocketHandler::SendPacket(NetPacket* p)
         if ( snd == p->_size) {
             // EVENT: Packet sent succesfully
             retval = true;
-
-            printf("Sent %d bytes.\n", snd);
         }
     }
 
@@ -78,14 +77,17 @@ bool SocketHandler::RecvPacket()
     uint psize = sizeof(PacketSize);
     NetPacket* p = new NetPacket(this);
 
-    //if (recv(_sockfd, (void*) &p->_buffer[0], psize, 0) == psize ) {
-    //    p->ReadSize();
-    //    if (recv(_sockfd, (void*) &p->_buffer[psize], p->_size - psize, 0) == p->_size - psize) {
-    //        // printf("RecvPacket passed packet to HandlePacket\n");
-    //        p->_pos = psize;
-    //        retval = this->HandlePacket(p);
-    //    }
-    //}
+    int readsize;
+    char newbuf[BUFSIZ+1];
+    memset (newbuf,0,sizeof(newbuf));
+    readsize = read(_sockfd, newbuf, BUFSIZ);
+    p->_data.assign(newbuf);
+    //std::cout << "GOT: " << newbuf << std::endl;
+    if ( p->ReadRaw() ) {
+        //std::cout << p->_data << std::endl;
+        //std::cout << p->_pos << " pos, size: " << p->_size << std::endl;
+        retval = this->HandlePacket(p);
+    }
 
     // important
     delete p;

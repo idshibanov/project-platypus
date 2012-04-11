@@ -5,6 +5,9 @@
 #include "../core/bitmath.h"
 #include "packet.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+
 
 NetPacket::NetPacket(SocketHandler* sock)
 {
@@ -37,31 +40,77 @@ void NetPacket::PrepareToSend()
 
     std::stringstream ss (std::stringstream::in | std::stringstream::out);
     _size = _buffer.str().size();
-    std::cout << "1Size: " << _size << std::endl;
-    ss << _size << ';';
+    ss << 'S' << _size << ';';
     _size += ss.str().size();
-    std::cout << "2Size: " << _size << std::endl;
-    ss.str("");
-    ss << _size << ';';
     _buffer.str( ss.str() + _buffer.str() );
     
-    std::cout << _buffer.str() << std::endl;
+    //std::cout << _buffer.str() << std::endl;
 }
 
-void NetPacket::ReadSize()
+bool NetPacket::ReadRaw()
 {
-//    _size  = (PacketSize)_buffer[0];
-//    _size += (PacketSize)_buffer[1] << 8;
+    bool retval = false;
+
+    if ( ReadSize() ) {
+        if ( ReadType() ) {
+            _data.assign(_data.substr(_pos));
+            _size = _data.size();
+            _pos = 0;
+            retval = true;
+        }
+    }
+    return retval;
+}
+
+bool NetPacket::ReadSize()
+{
+    bool retval = false;
+    std::string tmpstr;
+    
+    _pos = _data.find(';');
+    if (_pos == std::string::npos) {
+        _size = 0;
+    } else {
+        tmpstr = _data.substr(0,_pos);
+        if (*tmpstr.data() == 'S') {
+            tmpstr.assign(tmpstr.substr(1, _pos));
+            _size = atoi(tmpstr.data());
+            retval = true;
+        } else {
+            _size = 0;
+        }
+    }
+    
+    return retval;
+}
+
+bool NetPacket::ReadType()
+{
+    bool retval = false;
+    std::size_t found;
+    std::string tmpstr;
+    
+    found = _data.find(';', _pos+1);
+    if (found != std::string::npos) {
+        _pos++; // to pass the ';' char
+        tmpstr = _data.substr(_pos,found);
+        _type = (NetPacketType) atoi(tmpstr.data());
+        _pos = found;
+        _pos++; // to pass the ';' char
+        retval = true;
+    }
+    
+    return retval;
 }
 
 bool NetPacket::SendBool(bool data)
 {
-    return SendUchar(data ? 1 : 0);
+    return SendUchar(data ? '1' : '0');
 }
 
 bool NetPacket::RecvBool()
 {
-    return RecvUchar() != 0;
+    return RecvUchar() != '0';
 }
 
 bool NetPacket::SendUchar(uchar data)
@@ -81,10 +130,14 @@ bool NetPacket::SendUchar(uchar data)
 
 uchar NetPacket::RecvUchar()
 {
-    // DEBUG: check if there is data left
-    assert(_pos < _size);
+    uchar retval = 0;
+    if (_pos < _size) {
+        retval = *(_data.data() + _pos);
+        _pos = _data.find(';', _pos + 1) + 1;
+        //printf("Got: %c, pos: %d\n", retval, _pos);
+    }
 
-    return 0; //(_pos < _size) ? _buffer[_pos++] : 0;
+    return retval;
 }
 
 bool NetPacket::SendUint(uint data)
@@ -104,19 +157,16 @@ bool NetPacket::SendUint(uint data)
 
 uint NetPacket::RecvUint()
 {
-
-    // DEBUG: check if there is data left
-    //assert(_pos < _size);
-
     uint retval = 0;
-
-    //retval = (uint)_buffer[_pos++];
-    //retval += (uint)_buffer[_pos++] << 8;
-    //retval += (uint)_buffer[_pos++] << 16;
-    //retval += (uint)_buffer[_pos++] << 24;
-
-    //retval = (uint)_buffer[_pos];
-    //_pos += sizeof(uint);
+    std::size_t found;
+    
+    if (_pos < _size) {
+        found = _data.find(';', _pos + 1);
+    
+        retval = atoi(_data.substr(_pos,found).data());
+        _pos = found+1;
+        //printf("Got: %d, pos: %d\n", retval, _pos);
+    }
 
     return retval;
 }
@@ -124,7 +174,7 @@ uint NetPacket::RecvUint()
 bool NetPacket::SendString(const char* data)
 {
     // DEBUG: check if there is data
-    //assert(data != (const char*)0);
+    assert(data != (const char*)0);
 
     bool retval = false;
 
@@ -144,25 +194,25 @@ bool NetPacket::SendString(const char* data)
 bool NetPacket::RecvString(char* buf)
 {
     // DEBUG: passed string is not null
-    //assert(buf != (char *)0);
+    assert(buf != (char *)0);
 
     // DEBUG: ensure that we are reading, not writing
-    //assert(_read_sock != (SocketHandler *)0);
+    assert(_read_sock != (SocketHandler *)0);
 
     bool retval = false;
-    //uint i;
-
-    // strcpy works buggy, replaced with plain while loop
-
-    //i = strlen((const char*)&_buffer[_pos]);
-    //strcpy(buf, (const char*)&_buffer[_pos]);
-    //_pos += i;
-
-    //int k = 0;
-    //while ((buf[k++] = _buffer[_pos++]) != '\0' && _pos < _size);
-    //buf[k++] = '\0';
-
-    //retval = true;
+    std::size_t found;
+    
+    if (_pos < _size) {
+        found = _data.find(';', _pos + 1);
+    
+        //printf("Pos: %d, Found: %d\n", _pos, found);
+        _data.copy(buf, found-_pos, _pos);
+        buf[found-_pos]='\0';
+        _pos = found+1;
+        //printf("Got: %s, pos: %d\n", buf, _pos);
+        
+        retval = true;
+    }
 
     return retval;
 }

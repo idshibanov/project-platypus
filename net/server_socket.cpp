@@ -26,10 +26,10 @@ bool ServerSocketHandler::HandlePacket(NetPacket* p)
     // DEBUG: it is not a null pointer
     assert(p != (NetPacket *)0);
 
-    //printf("got %d bytes, packet %d\n", p->_size, p->_buffer[p->_pos]);
+    printf("got %d bytes of data, packet %d\n", p->_size, p->_type);
     bool retval = false;
 
-    switch(p->_pos) {
+    switch(p->_type) {
     
     case PACKET_CLIENT_CONNECT:
         if ( _status == STATUS_SERVER_OFFLINE ) {
@@ -187,7 +187,7 @@ bool ServerSocketHandler::RecvClientMovement(NetPacket* p)
     assert(p != (NetPacket *)0);
 
     bool retval = false;
-
+    
     unsigned int mvm = p->RecvUint();
     if(_game->MovePlayer(_sockfd, mvm)) {
         SendMoveResponse(true);

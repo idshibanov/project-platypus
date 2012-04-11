@@ -71,10 +71,16 @@ class NetPacket
     PacketSize _size;
 
     // current read\write position in the buffer
-    PacketSize _pos;
+    std::size_t _pos;
+    
+    // packet type
+    NetPacketType _type;
 
-    // pointer to DYNAMICALLY allocated data that actually will be send
+    // send
     std::stringstream _buffer;
+    
+    // recieve
+    std::string _data;
 
     // pointer used for queuing packets
     NetPacket* _next;
@@ -92,8 +98,10 @@ class NetPacket
     // run before sending packet
     void PrepareToSend();
 
-    // get raw size from buffer while reading
-    void ReadSize();
+    // get raw size and type from buffer while reading
+    bool ReadRaw();
+    bool ReadSize();
+    bool ReadType();
 
     // send\recieve functions, to fill\extract data from packets
     bool SendBool(bool data);
